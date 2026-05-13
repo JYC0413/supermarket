@@ -279,7 +279,7 @@ export class GameScene extends Phaser.Scene {
     g.lineStyle(3, COLORS.greenLight);
     g.strokeRoundedRect(cx - 80, cy - 28, 160, 56, 8);
     g.fillStyle(0x1a3000, 0.4);
-    g.fillRoundedRect(cx - 78, cy + 30, 160, 4, 2);
+    g.fillRoundedRect(cx - 80, cy + 32, 160, 4, 2);
 
     const t = this.add.text(cx, cy, `✓  +¥${amount}`, {
       ...FONT_GOLD, fontSize: '26px', color: '#1a4000', fontStyle: 'bold',
