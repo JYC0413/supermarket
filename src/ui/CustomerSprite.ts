@@ -1,7 +1,7 @@
 // src/ui/CustomerSprite.ts
 import Phaser from 'phaser';
 
-const SCALE = 6; // 16px tile → 96px display
+const SCALE = 8; // 16px tile → 128px display
 
 // 顾客向左走（朝收银员方向），用 LEFT-facing 帧
 // 每组：idle 帧 + 2 个行走帧

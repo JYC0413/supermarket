@@ -7,8 +7,9 @@ import { FONT, FONT_GOLD, FONT_GREY } from '../config';
 const CHUNK_PAD_X = 12;
 const CHUNK_PAD_Y = 12;
 const FONT_SIZE   = '26px';
-// Minimum chunk height: ensures CJK glyphs never get clipped
-const MIN_CHUNK_H = 56;
+// CJK 字符实际渲染高度约 34px，加上上下各 14px 安全边距 = 62px
+// 不依赖 Phaser 测量，直接用固定高度
+const FIXED_CHUNK_H = 62;
 
 export class DialogueBox extends Phaser.GameObjects.Container {
   private circledIds: string[] = [];
@@ -51,7 +52,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
       if (cursorX + chunkWidth > maxWidth && cursorX > 14) {
         cursorX = 14;
-        cursorY += 68;
+        cursorY += FIXED_CHUNK_H + 8;
       }
 
       chunkContainer.setPosition(cursorX, cursorY);
@@ -70,7 +71,9 @@ export class DialogueBox extends Phaser.GameObjects.Container {
       ...style, fontSize: FONT_SIZE,
     });
     const w = label.width + CHUNK_PAD_X * 2;
-    const h = Math.max(label.height + CHUNK_PAD_Y * 2 + 6, MIN_CHUNK_H);
+    const h = FIXED_CHUNK_H;
+    // 文字垂直居中于固定高度框内
+    label.setY((h - label.height) / 2);
 
     const bg = scene.add.rectangle(0, 0, w, h,
       chk.clickable ? 0x181818 : 0x101008)

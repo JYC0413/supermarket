@@ -29,15 +29,20 @@ export class NumPad extends Phaser.GameObjects.Container {
 
   private buildDisplay(): void {
     const totalW = KEY_W * 3 + GAP * 2;
-    const bg = this.scene.add.rectangle(0, 0, totalW, 62, 0x1a120a)
+    // 显示框内上半部分显示提示文字，下半部分显示答案
+    const bg = this.scene.add.rectangle(0, 0, totalW, 86, 0x1a120a)
       .setOrigin(0, 0).setStrokeStyle(2, 0x5a4030);
-    this.displayText = this.scene.add.text(10, 10, '_', {
-      ...FONT, fontSize: '32px', color: '#ffffff',
+    // 提示文字：显示框内顶部（不再浮出容器外）
+    this.promptText = this.scene.add.text(8, 7, '', {
+      ...FONT, fontSize: '16px', color: '#c8a070',
     });
-    this.promptText = this.scene.add.text(0, -38, '', {
-      ...FONT, fontSize: '18px', color: '#c8a070',
+    // 分隔线
+    const line = this.scene.add.rectangle(0, 32, totalW, 1, 0x5a4030).setOrigin(0, 0);
+    // 答案输入：显示框内下半部分
+    this.displayText = this.scene.add.text(8, 38, '_', {
+      ...FONT, fontSize: '34px', color: '#ffffff',
     });
-    this.add([bg, this.displayText, this.promptText]);
+    this.add([bg, line, this.promptText, this.displayText]);
   }
 
   private buildKeys(): void {
@@ -48,7 +53,7 @@ export class NumPad extends Phaser.GameObjects.Container {
         const isWide = key === '0';
         const w = isWide ? KEY_W * 2 + GAP : KEY_W;
         const kx = isWide ? 0 : ci * (KEY_W + GAP);
-        const ky = 70 + ri * (KEY_H + GAP);
+        const ky = 94 + ri * (KEY_H + GAP);
 
         const isDelete = key === '⌫';
         const bgColor = isDelete ? 0x2a1a1a : 0x1a1a2e;
@@ -73,7 +78,7 @@ export class NumPad extends Phaser.GameObjects.Container {
 
   private buildConfirmButton(): void {
     const totalW = KEY_W * 3 + GAP * 2;
-    const ky = 70 + 4 * (KEY_H + GAP);
+    const ky = 94 + 4 * (KEY_H + GAP);
     const confirmBg = this.scene.add.rectangle(0, ky, totalW, KEY_H, 0x1a3a1a)
       .setOrigin(0, 0).setStrokeStyle(2, 0x3a6a3a)
       .setInteractive({ useHandCursor: true });

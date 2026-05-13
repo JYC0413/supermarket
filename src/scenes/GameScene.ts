@@ -52,10 +52,10 @@ export class GameScene extends Phaser.Scene {
     this.add.rectangle(0, H * 0.52, W, 4, 0x5a3a10).setOrigin(0, 0);
 
     this.patienceBar    = new PatienceBar(this, 20, H * 0.535, W - 40);
-    this.stepIndicator  = new StepIndicator(this, 0, H * 0.575, W);
+    this.stepIndicator  = new StepIndicator(this, 0, H * 0.583, W);
     // 对话框：从 W*0.03 开始（留左边距），宽 W*0.56，数字盘在右侧
-    this.dialogueBox    = new DialogueBox(this, W * 0.03, H * 0.625, W * 0.56);
-    this.numPad         = new NumPad(this, W * 0.637, H * 0.620);
+    this.dialogueBox    = new DialogueBox(this, W * 0.03, H * 0.638, W * 0.56);
+    this.numPad         = new NumPad(this, W * 0.637, H * 0.633);
     this.numPad.setLocked(true);
 
     this.events.on('keyword_circled', (_id: string) => this.onKeywordCircled());
@@ -100,8 +100,8 @@ export class GameScene extends Phaser.Scene {
 
     const W = this.scale.width;
     const H = this.scale.height;
-    this.customer = new CustomerSprite(this, W * 0.78, H * 0.445);
-    this.customer.walkIn(W * 0.63, () => {
+    this.customer = new CustomerSprite(this, W * 0.85, H * 0.48);
+    this.customer.walkIn(W * 0.65, () => {
       this.dialogueBox.load(q);
       if (q.isHard) this.dialogueBox.showHardBadge();
       this.stepIndicator.setStep('keyword');
@@ -274,12 +274,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildStoreScene(W: number, H: number): void {
-    const S        = 6;
+    const S        = 8;           // 角色缩放 8x
     const sceneBot = H * 0.52;
-    const floorY   = H * 0.35;
-    const counterY = H * 0.445;   // 收银台台面顶部 Y
-    const counterW = 620;
-    const counterH = 72;
+    const floorY   = H * 0.30;
+    const counterY = H * 0.48;   // 柜台台面顶部（降低，让角色露出更多）
+    const counterW = 680;
+    const counterH = 68;
     const counterTopH = 16;
     const counterX = (W - counterW) / 2;
 
