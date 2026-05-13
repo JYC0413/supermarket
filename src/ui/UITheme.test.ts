@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { COLORS, COLOR_STR, FONT, SPACING, drawWoodFrame } from './UITheme';
+import { COLORS, FONT, SPACING, drawWoodFrame } from './UITheme';
 import type { GameObjects } from 'phaser';
 
 describe('UITheme', () => {
