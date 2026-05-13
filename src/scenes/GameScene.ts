@@ -10,7 +10,7 @@ import { PatienceBar } from '../ui/PatienceBar';
 import { StepIndicator } from '../ui/StepIndicator';
 import { CustomerSprite } from '../ui/CustomerSprite';
 import { DEFAULT_SETTINGS } from '../config';
-import { COLORS, FONT, COLOR_STR } from '../ui/UITheme';
+import { COLORS, FONT, FONT_GOLD, FONT_GREEN, FONT_GREY, COLOR_STR } from '../ui/UITheme';
 import type { Question, GameSettings } from '../logic/types';
 
 export class GameScene extends Phaser.Scene {
@@ -203,22 +203,22 @@ export class GameScene extends Phaser.Scene {
     const overlayBg = this.add.rectangle(cx, cy, 800, 420, COLORS.hudBgTop)
       .setOrigin(0.5).setStrokeStyle(3, COLORS.woodDark).setAlpha(0.97);
     const titleTxt = this.add.text(cx, cy - 150, '回合结束', {
-      fontFamily: '"Courier New", monospace', fontSize: '30px', color: COLOR_STR.inkLight,
+      ...FONT, fontSize: '30px', color: COLOR_STR.inkLight,
     }).setOrigin(0.5);
     const earningTxt = this.add.text(cx, cy - 65, `本局收入  ¥${roundEarned}`, {
-      fontFamily: '"Courier New", monospace', fontSize: '52px', color: '#ffd060',
+      ...FONT_GOLD, fontSize: '52px',
     }).setOrigin(0.5);
     const classTxt = this.add.text(cx, cy + 20, `班级累计  ¥${this.score.classTotal}`, {
-      fontFamily: '"Courier New", monospace', fontSize: '28px', color: '#9f9fff',
+      ...FONT_GREY, fontSize: '28px',
     }).setOrigin(0.5);
 
     const btnNext = this.add.text(cx - 150, cy + 130, '▶  再来一局', {
-      fontFamily: '"Courier New", monospace', fontSize: '26px', color: '#6fcf6f',
+      ...FONT_GREEN, fontSize: '26px',
       backgroundColor: '#0a2a0a', padding: { x: 24, y: 14 },
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     const btnConfig = this.add.text(cx + 150, cy + 130, '⚙  修改设置', {
-      fontFamily: '"Courier New", monospace', fontSize: '26px', color: '#aaa',
+      ...FONT_GREY, fontSize: '26px',
       backgroundColor: '#111122', padding: { x: 24, y: 14 },
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
