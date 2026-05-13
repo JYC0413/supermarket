@@ -26,6 +26,7 @@ export class GameScene extends Phaser.Scene {
   private overtimeTimer = 0;
   private roundTimer = 0;
   private roundActive = false;
+  private customerExiting = false;
 
   // UI
   private dialogueBox!: DialogueBox;
@@ -75,6 +76,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private nextCustomer(): void {
+    this.customerExiting = false;
     if (this.currentQuestionIdx >= this.questions.length) {
       this.onAllServed();
       return;
@@ -169,6 +171,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private customerLeave(): void {
+    if (this.customerExiting) return;
+    this.customerExiting = true;
     this.score.onCustomerLeft();
     this.numPad.setLocked(true);
     this.customer.walkOut(() => {
@@ -205,7 +209,7 @@ export class GameScene extends Phaser.Scene {
     this.patience.tick(dt);
     this.patienceBar.update(this.patience.value);
 
-    if (this.patience.isDepleted) {
+    if (this.patience.isDepleted && !this.customerExiting) {
       this.customerLeave();
       return;
     }
