@@ -7,6 +7,11 @@ const UNITS: Record<string, string> = {
   橡皮: '块', 尺子: '把', 糖果: '颗', 饼干: '块',
 };
 
+let _idCounter = 0;
+function nextId(prefix: string): string {
+  return `${prefix}_${++_idCounter}`;
+}
+
 function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -26,7 +31,7 @@ export class QuestionBank {
     const p = randInt(2, 9);
     const item = randItem(ITEMS);
     return {
-      id: `mult_${Date.now()}_${Math.random()}`,
+      id: nextId('mult'),
       type: 'multiplication',
       isHard: false,
       chunks: [
@@ -52,7 +57,7 @@ export class QuestionBank {
     const item = randItem(ITEMS);
     const unit = UNITS[item];
     return {
-      id: `div_${Date.now()}_${Math.random()}`,
+      id: nextId('div'),
       type: 'division_remainder',
       isHard: false,
       chunks: [
@@ -84,7 +89,7 @@ export class QuestionBank {
     const n2 = randInt(2, 6);
     const p2 = randInt(2, 9);
     return {
-      id: `multadd_${Date.now()}_${Math.random()}`,
+      id: nextId('multadd'),
       type: 'mult_add',
       isHard: true,
       chunks: [
@@ -117,7 +122,7 @@ export class QuestionBank {
     const discount = randInt(1, Math.min(3, total - 1));
     const item = randItem(ITEMS);
     return {
-      id: `multsub_${Date.now()}_${Math.random()}`,
+      id: nextId('multsub'),
       type: 'mult_sub',
       isHard: true,
       chunks: [
