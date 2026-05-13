@@ -14,11 +14,16 @@ export interface TextChunk {
   isKeyword: boolean;
 }
 
+/** One answer step: the label shown to the student and the correct numeric value. */
+export interface AnswerSlot {
+  label: string;    // e.g. "一共多少钱？（元）" or "找多少钱？（元）"
+  answer: number;
+}
+
 /**
  * A fully generated question.
- * answers has one element for single-step questions,
- * two elements [quotient, remainder] for division_remainder.
- * promptLabels matches answers in length ("一共多少钱？" / "买几根？" + "找多少钱？").
+ * slots has one entry for single-step questions,
+ * two entries [quotient, remainder] for division_remainder.
  */
 export interface Question {
   id: string;
@@ -26,8 +31,7 @@ export interface Question {
   isHard: boolean;
   chunks: TextChunk[];
   requiredKeywordIds: string[];
-  answers: number[];
-  promptLabels: string[];
+  slots: AnswerSlot[];
 }
 
 export interface GameSettings {
