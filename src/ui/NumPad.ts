@@ -67,7 +67,7 @@ export class NumPad extends Phaser.GameObjects.Container {
           ...FONT, fontSize: '24px', color: labelColor,
         }).setOrigin(0.5, 0.5);
 
-        bg.on('pointerover', () => { if (!this._locked) bg.setFillStyle(isDelete ? 0x3a2a2a : 0x2a2a4e); });
+        bg.on('pointerover', () => { if (!this._locked) bg.setFillStyle(isDelete ? 0xf0c8a8 : 0xe8d098); });
         bg.on('pointerout', () => bg.setFillStyle(bgColor));
         bg.on('pointerup', () => { if (!this._locked) this.handleKey(key); });
 

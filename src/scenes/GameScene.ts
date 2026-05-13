@@ -209,7 +209,7 @@ export class GameScene extends Phaser.Scene {
       ...FONT_GOLD, fontSize: '52px',
     }).setOrigin(0.5);
     const classTxt = this.add.text(cx, cy + 20, `班级累计  ¥${this.score.classTotal}`, {
-      ...FONT_GREY, fontSize: '28px',
+      ...FONT, fontSize: '28px', color: '#c0a8ff',
     }).setOrigin(0.5);
 
     const btnNext = this.add.text(cx - 150, cy + 130, '▶  再来一局', {

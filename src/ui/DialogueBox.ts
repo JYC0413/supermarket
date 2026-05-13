@@ -99,7 +99,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
     if (KeywordValidator.isValidKeyword(this.question, chk.id)) {
       this.circledIds.push(chk.id);
-      bg.setFillStyle(COLORS.keywordBg).setStrokeStyle(2, 0xc89020);
+      bg.setFillStyle(COLORS.keywordBg).setStrokeStyle(2, COLORS.goldBorder);
       label.setStyle({ ...FONT_GOLD, fontSize: FONT_SIZE });
       this.scene.events.emit('keyword_circled', chk.id);
       if (KeywordValidator.allCircled(this.question, this.circledIds)) {
