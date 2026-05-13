@@ -1,7 +1,7 @@
 // src/ui/CustomerSprite.ts
 import Phaser from 'phaser';
 
-const SCALE = 4; // 16px tile → 64px display
+const SCALE = 6; // 16px tile → 96px display
 
 const CUSTOMER_TYPES = [
   { idle: 47, walk: [48, 49] },
