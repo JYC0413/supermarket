@@ -163,6 +163,7 @@ export class GameScene extends Phaser.Scene {
     this.score.onWrongAnswer();
     this.patience.onWrongAnswer(this.wrongAttempts);
     this.patienceBar.update(this.patience.value);
+    this.patienceBar.flashRed();
     this.customer.setMood('angry');
     this.numPad.reset();
     this.cameras.main.shake(140, 0.007);
