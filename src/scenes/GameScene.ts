@@ -150,10 +150,7 @@ export class GameScene extends Phaser.Scene {
     this.updateStreakFire(this.score.streak);
     this.customer.setMood('happy');
     this.flyCoins(this.scale.width * 0.65, this.scale.height * 0.38);
-    this.showFloat(
-      this.scale.width * 0.5, this.scale.height * 0.35,
-      `¥${this.score.turnTotal}`, '#6fcf6f',
-    );
+    this.showCorrectBadge(this.score.turnTotal);
     this.time.delayedCall(700, () => {
       if (!this.roundActive) return;
       this.customer.walkOut(() => {
@@ -269,6 +266,37 @@ export class GameScene extends Phaser.Scene {
       customerIndex: this.currentQuestionIdx,
       customerCount: this.questions.length,
       highScore: this.score.sessionHighScore,
+    });
+  }
+
+  private showCorrectBadge(amount: number): void {
+    const cx = this.scale.width * 0.50;
+    const cy = this.scale.height * 0.32;
+
+    const g = this.add.graphics();
+    g.fillStyle(COLORS.green);
+    g.fillRoundedRect(cx - 80, cy - 28, 160, 56, 8);
+    g.lineStyle(3, COLORS.greenLight);
+    g.strokeRoundedRect(cx - 80, cy - 28, 160, 56, 8);
+    g.fillStyle(0x1a3000, 0.4);
+    g.fillRoundedRect(cx - 78, cy + 30, 160, 4, 2);
+
+    const t = this.add.text(cx, cy, `✓  +¥${amount}`, {
+      ...FONT_GOLD, fontSize: '26px', color: '#1a4000', fontStyle: 'bold',
+    }).setOrigin(0.5);
+
+    g.setScale(0.4); t.setScale(0.4); g.setAlpha(0); t.setAlpha(0);
+    this.tweens.add({
+      targets: [g, t],
+      scale: 1, alpha: 1,
+      duration: 300, ease: 'Back.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: [g, t],
+          alpha: 0, delay: 700, duration: 300,
+          onComplete: () => { g.destroy(); t.destroy(); },
+        });
+      },
     });
   }
 
