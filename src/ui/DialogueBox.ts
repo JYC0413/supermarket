@@ -111,6 +111,8 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
     if (isClickable) {
       g.setInteractive(new Phaser.Geom.Rectangle(0, 0, w, h), Phaser.Geom.Rectangle.Contains);
+      g.on('pointerover', () => { this.scene.game.canvas.style.cursor = 'pointer'; });
+      g.on('pointerout',  () => { this.scene.game.canvas.style.cursor = 'default'; });
       g.on('pointerup', () => this.onChunkTap(chk, g, label, container, w, h));
     }
     return container;
