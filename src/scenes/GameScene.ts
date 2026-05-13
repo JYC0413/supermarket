@@ -45,10 +45,7 @@ export class GameScene extends Phaser.Scene {
     const H = this.scale.height;
 
     this.add.rectangle(0, 0, W, H, COLORS.bg).setOrigin(0, 0);
-    this.add.image(65, 80, 'shelf').setOrigin(0.5, 0.5);
-    this.add.image(W - 65, 80, 'shelf').setOrigin(0.5, 0.5);
-    this.add.image(W / 2, H * 0.28, 'counter').setOrigin(0.5, 1);
-    this.add.image(W / 2 - 50, H * 0.28, 'cashier').setOrigin(0.5, 1);
+    this.buildStoreScene(W, H);
 
     this.patienceBar = new PatienceBar(this, 10, H * 0.32, W - 20);
     this.stepIndicator = new StepIndicator(this, 0, H * 0.37, W);
@@ -98,7 +95,7 @@ export class GameScene extends Phaser.Scene {
 
     const W = this.scale.width;
     const H = this.scale.height;
-    this.customer = new CustomerSprite(this, W * 0.72, H * 0.28);
+    this.customer = new CustomerSprite(this, W * 0.72, H * 0.24);
     this.customer.walkIn(W * 0.65, () => {
       this.dialogueBox.load(q);
       if (q.isHard) this.dialogueBox.showHardBadge();
@@ -269,5 +266,46 @@ export class GameScene extends Phaser.Scene {
       targets: t, y: y - 50, alpha: 0, duration: 1000,
       onComplete: () => t.destroy(),
     });
+  }
+
+  private buildStoreScene(W: number, H: number): void {
+    const S = 4;       // tile scale: 16px → 64px
+    const TS = 16 * S; // 64px per tile
+
+    // --- Ceiling / back wall (dark warm tone) ---
+    this.add.rectangle(0, 52, W, H * 0.14, 0x1a1008).setOrigin(0, 0);
+
+    // --- Shelf row on back wall ---
+    const shelfY = 52 + H * 0.04;
+    for (let x = 0; x < W; x += TS) {
+      this.add.image(x, shelfY, 'urban', 254).setScale(S).setOrigin(0, 0);
+      // second shelf row offset half a tile for depth
+      if (x % (TS * 2) === 0) {
+        this.add.image(x + TS * 0.5, shelfY + TS * 0.7, 'urban', 255)
+          .setScale(S).setOrigin(0, 0);
+      }
+    }
+
+    // --- Floor (tile 83, beige interior) ---
+    const floorTop = H * 0.17;
+    const floorBot = H * 0.32;
+    for (let y = floorTop; y < floorBot; y += TS) {
+      for (let x = 0; x < W; x += TS) {
+        this.add.image(x, y, 'urban', 83).setScale(S).setOrigin(0, 0);
+      }
+    }
+
+    // --- Counter (tiles 190-192) ---
+    const counterY = H * 0.24;
+    const counterTiles = Math.floor(W / TS);
+    for (let i = 0; i < counterTiles; i++) {
+      const frame = i === 0 ? 190 : (i === counterTiles - 1 ? 192 : 191);
+      this.add.image(i * TS, counterY, 'urban', frame).setScale(S).setOrigin(0, 0);
+    }
+
+    // --- Cashier (tile 22, brown-haired woman) behind counter ---
+    this.add.image(W * 0.42, counterY, 'urban', 22)
+      .setScale(S)
+      .setOrigin(0.5, 1);
   }
 }
