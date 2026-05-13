@@ -55,7 +55,8 @@ export class StepIndicator extends Phaser.GameObjects.Container {
       if (i < activeIdx) {
         bg.setFillStyle(0xeaf8e0).setSize(bg.width, CELL_H);
         bg.setY(0);
-        label.setColor(COLOR_STR.green).setText(STEP_LABELS[step] + ' ✓');
+        label.setStyle({ ...FONT, fontSize: '17px', fontStyle: 'normal' })
+          .setColor(COLOR_STR.green).setText(STEP_LABELS[step] + ' ✓');
       } else if (i === activeIdx) {
         bg.setFillStyle(COLORS.goldNum).setSize(bg.width, CELL_H + 2);
         bg.setY(-2);

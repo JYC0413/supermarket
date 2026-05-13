@@ -19,7 +19,7 @@ export class PatienceBar extends Phaser.GameObjects.Container {
     const sep = scene.add.rectangle(0, 16, width, 2, 0xd4b870).setOrigin(0, 0.5);
 
     this.emoji = scene.add.text(6, 0, '😊', { fontSize: '22px' }).setOrigin(0, 0.5);
-    scene.add.text(34, 0, '顾客耐心', { ...FONT_GREY, fontSize: '16px' }).setOrigin(0, 0.5);
+    const label = scene.add.text(34, 0, '顾客耐心', { ...FONT_GREY, fontSize: '16px' }).setOrigin(0, 0.5);
 
     const trackX = 120;
     this.trackW = width - trackX - 8;
@@ -38,7 +38,7 @@ export class PatienceBar extends Phaser.GameObjects.Container {
     this.fill = scene.add.rectangle(trackX, 0, this.trackW, 12, COLORS.green)
       .setOrigin(0, 0.5);
 
-    this.add([rowBg, sep, this.emoji, trackG, this.fill]);
+    this.add([rowBg, sep, this.emoji, label, trackG, this.fill]);
   }
 
   update(value: number): void {
@@ -66,7 +66,7 @@ export class PatienceBar extends Phaser.GameObjects.Container {
     this.scene.tweens.add({
       targets: this.fill,
       alpha: { from: 0.4, to: 1 },
-      yoyo: true, repeat: 1, duration: 180,
+      yoyo: true, repeat: 0, duration: 180,
       onComplete: () => this.fill.setFillStyle(original),
     });
   }
