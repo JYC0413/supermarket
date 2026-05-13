@@ -136,6 +136,7 @@ export class NumPad extends Phaser.GameObjects.Container {
     });
     g.on('pointerout', () => {
       this.scene.game.canvas.style.cursor = 'default';
+      this.scene.tweens.add({ targets: container, y: ky, duration: 60, ease: 'Linear' });
     });
     g.on('pointerdown', () => {
       if (this._locked) return;
@@ -145,9 +146,6 @@ export class NumPad extends Phaser.GameObjects.Container {
       if (this._locked) return;
       this.scene.tweens.add({ targets: container, y: ky, duration: 60, ease: 'Linear' });
       this.handleKey(label);
-    });
-    g.on('pointerout', () => {
-      this.scene.tweens.add({ targets: container, y: ky, duration: 60, ease: 'Linear' });
     });
 
     return container;
