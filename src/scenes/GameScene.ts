@@ -9,7 +9,7 @@ import { NumPad } from '../ui/NumPad';
 import { PatienceBar } from '../ui/PatienceBar';
 import { StepIndicator } from '../ui/StepIndicator';
 import { CustomerSprite } from '../ui/CustomerSprite';
-import { DEFAULT_SETTINGS, COLORS } from '../config';
+import { DEFAULT_SETTINGS } from '../config';
 import type { Question, GameSettings } from '../logic/types';
 
 export class GameScene extends Phaser.Scene {
