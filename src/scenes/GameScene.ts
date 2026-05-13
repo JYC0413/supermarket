@@ -147,6 +147,7 @@ export class GameScene extends Phaser.Scene {
       `¥${this.score.turnTotal}`, '#6fcf6f',
     );
     this.time.delayedCall(700, () => {
+      if (!this.roundActive) return;
       this.customer.walkOut(() => {
         this.currentQuestionIdx++;
         this.nextCustomer();
