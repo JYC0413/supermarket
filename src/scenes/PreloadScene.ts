@@ -17,6 +17,6 @@ export class PreloadScene extends Phaser.Scene {
     make('customer_angry', 0xaa3030, 14, 26);
     make('counter', 0x5a3a10, 130, 24);
     make('shelf', 0x3a2a10, 52, 40);
-    this.scene.start('GameScene');
+    this.scene.start('ConfigScene');
   }
 }
