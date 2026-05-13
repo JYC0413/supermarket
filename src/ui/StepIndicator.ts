@@ -24,17 +24,17 @@ export class StepIndicator extends Phaser.GameObjects.Container {
     const cellW = Math.floor(width / 3);
 
     STEP_ORDER.forEach((step, i) => {
-      const bg = scene.add.rectangle(i * cellW, 0, cellW - 1, 26, 0x0d0d18)
+      const bg = scene.add.rectangle(i * cellW, 0, cellW - 1, 46, 0x0d0d18)
         .setOrigin(0, 0).setStrokeStyle(1, 0x1a1a2a);
-      const label = scene.add.text(i * cellW + cellW / 2, 13, STEP_LABELS[step], {
-        fontFamily: '"Courier New", monospace', fontSize: '11px', color: '#444',
+      const label = scene.add.text(i * cellW + cellW / 2, 23, STEP_LABELS[step], {
+        fontFamily: '"Courier New", monospace', fontSize: '19px', color: '#444',
       }).setOrigin(0.5, 0.5);
       this.cells.set(step, { bg, label });
       this.add([bg, label]);
     });
 
-    this.bonusText = scene.add.text(width - 4, 13, '', {
-      fontFamily: '"Courier New", monospace', fontSize: '10px', color: '#ffd060',
+    this.bonusText = scene.add.text(width - 6, 23, '', {
+      fontFamily: '"Courier New", monospace', fontSize: '18px', color: '#ffd060',
     }).setOrigin(1, 0.5);
     this.add(this.bonusText);
   }

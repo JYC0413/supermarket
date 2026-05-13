@@ -80,6 +80,38 @@ export class QuestionBank {
     };
   }
 
+  generateDivisionExact(): Question {
+    const p = randInt(2, 9);
+    const quotient = randInt(2, 9);
+    const total = quotient * p;
+    const item = randItem(ITEMS);
+    const unit = UNITS[item];
+    return {
+      id: nextId('div'),
+      type: 'division_exact',
+      isHard: false,
+      chunks: [
+        plain('我有'),
+        chunk('total_money', `${total}块钱`, true),
+        plain('，一'),
+        chunk('item', item, false),
+        chunk('p_price', `${p}元`, true),
+        plain('，能买几'),
+        chunk('q_count', unit, true),
+        plain('？'),
+      ],
+      requiredKeywordIds: ['total_money', 'p_price', 'q_count'],
+      slots: [{ label: `能买几${unit}？`, answer: quotient }],
+    };
+  }
+
+  /** Randomly pick between division with or without remainder */
+  private generateDivision(): Question {
+    return Math.random() < 0.5
+      ? this.generateDivisionRemainder()
+      : this.generateDivisionExact();
+  }
+
   generateMultAdd(): Question {
     const item1 = randItem(ITEMS);
     let item2 = randItem(ITEMS);
@@ -150,9 +182,9 @@ export class QuestionBank {
       this.generateMultiplication(),
       this.generateMultiplication(),
       this.generateMultiplication(),
-      this.generateDivisionRemainder(),
-      this.generateDivisionRemainder(),
-      this.generateDivisionRemainder(),
+      this.generateDivision(),
+      this.generateDivision(),
+      this.generateDivision(),
       this.generateMultAdd(),
       this.generateMultSub(),
     ];

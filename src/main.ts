@@ -8,8 +8,8 @@ import { HUDScene } from './scenes/HUDScene';
 
 new Phaser.Game({
   type: Phaser.AUTO,
-  width: 960,
-  height: 600,
+  width: 1920,
+  height: 1080,
   backgroundColor: '#0a0a1a',
   pixelArt: true,
   scene: [BootScene, PreloadScene, ConfigScene, GameScene, HUDScene],

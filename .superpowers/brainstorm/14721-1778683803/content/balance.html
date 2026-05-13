@@ -1,0 +1,220 @@
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Courier New', monospace; }
+h2 { font-size: 15px; margin-bottom: 4px; }
+
+.section { margin-bottom: 20px; }
+.section-title {
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  color: #888; margin-bottom: 8px; padding-bottom: 4px;
+  border-bottom: 1px solid #222;
+}
+
+/* Economy flow */
+.flow {
+  display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+  background: #0a0a14; border: 1px solid #222; border-radius: 4px; padding: 12px;
+}
+.flow-node {
+  background: #1a1a2a; border: 1px solid #333; border-radius: 3px;
+  padding: 8px 10px; font-size: 11px; text-align: center; min-width: 80px;
+}
+.flow-node .val { font-size: 16px; font-weight: bold; margin: 3px 0; }
+.flow-node .label { font-size: 9px; color: #888; }
+.flow-arrow { font-size: 16px; color: #444; padding: 0 6px; }
+.flow-plus { font-size: 14px; color: #555; padding: 0 4px; }
+
+/* Tables */
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: 11px;
+  background: #0a0a14; border-radius: 4px; overflow: hidden;
+}
+.data-table th {
+  background: #1a1a2a; padding: 6px 10px; text-align: left;
+  color: #888; font-size: 10px; letter-spacing: 0.5px; font-weight: normal;
+  border-bottom: 1px solid #2a2a3a;
+}
+.data-table td {
+  padding: 6px 10px; border-bottom: 1px solid #161622; color: #ccc;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #111122; }
+.val-gold { color: #ffd060; font-weight: bold; }
+.val-red  { color: #cf6f6f; font-weight: bold; }
+.val-green{ color: #6fcf6f; font-weight: bold; }
+.val-blue { color: #9f9fff; }
+.tag-sm {
+  display: inline-block; font-size: 8px; padding: 1px 5px; border-radius: 8px;
+  margin-left: 4px; vertical-align: middle;
+}
+.tag-why { background: #1a1a00; border: 1px solid #4a4a00; color: #888; }
+
+/* Patience diagram */
+.patience-demo {
+  background: #0a0a14; border: 1px solid #222; border-radius: 4px;
+  padding: 12px; display: flex; gap: 16px; align-items: flex-start;
+}
+.timeline {
+  flex: 1;
+}
+.tl-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.tl-label { font-size: 9px; color: #888; min-width: 70px; text-align: right; }
+.tl-bar-wrap { flex: 1; height: 10px; background: #1a1a1a; border-radius: 1px; border: 1px solid #222; overflow: visible; position: relative; }
+.tl-bar { height: 100%; border-radius: 1px; }
+.tl-event {
+  position: absolute; top: -14px;
+  font-size: 8px; white-space: nowrap;
+}
+.patience-note { font-size: 10px; color: #666; line-height: 1.7; min-width: 140px; }
+.patience-note .hi { color: #ccc; }
+
+/* Scenario table */
+.scenario-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px; margin-top: 4px;
+}
+.scenario-card {
+  background: #0a0a14; border: 1px solid #222; border-radius: 4px; padding: 10px;
+  font-size: 10px;
+}
+.scenario-card .sc-title { color: #888; margin-bottom: 6px; font-size: 9px; }
+.scenario-card .sc-num { font-size: 18px; color: #ffd060; margin: 4px 0; font-weight: bold; }
+.scenario-card .sc-breakdown { color: #666; font-size: 9px; line-height: 1.6; }
+.scenario-card.best { border-color: #4a6a2a; }
+.scenario-card.ok   { border-color: #2a2a4a; }
+.scenario-card.poor { border-color: #4a2a2a; }
+</style>
+
+<h2>游戏数值系统</h2>
+<p class="subtitle">所有数字互相咬合，整体呈现便于评估</p>
+
+<!-- Per-question economy -->
+<div class="section">
+  <div class="section-title">每道题的收入构成</div>
+  <div class="flow">
+    <div class="flow-node">
+      <div class="label">正确答题</div>
+      <div class="val val-gold">¥30</div>
+      <div class="label">基础奖励</div>
+    </div>
+    <div class="flow-plus">+</div>
+    <div class="flow-node">
+      <div class="label">关键词奖</div>
+      <div class="val val-gold">¥8×N</div>
+      <div class="label">每个正确词</div>
+    </div>
+    <div class="flow-plus">+</div>
+    <div class="flow-node">
+      <div class="label">连胜加成</div>
+      <div class="val val-gold">¥0–25</div>
+      <div class="label">3连/5连</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node" style="border-color:#4a6a2a;background:#0d1a0d">
+      <div class="label">单题收入</div>
+      <div class="val val-green">¥46–79</div>
+      <div class="label">含2–3个关键词</div>
+    </div>
+  </div>
+</div>
+
+<!-- Patience system -->
+<div class="section">
+  <div class="section-title">耐心值机制（一位顾客的生命周期）</div>
+  <table class="data-table">
+    <tr>
+      <th>事件</th><th>耐心变化</th><th>设计意图</th>
+    </tr>
+    <tr>
+      <td>题目出现后 → 圈词阶段</td>
+      <td class="val-red">−1% / 4秒</td>
+      <td style="color:#666">极慢，给足审题时间（满值撑 6 分钟）</td>
+    </tr>
+    <tr>
+      <td>数字键盘解锁后</td>
+      <td class="val-red">−1% / 2秒</td>
+      <td style="color:#666">稍快，暗示"该答题了"</td>
+    </tr>
+    <tr>
+      <td>键盘解锁 20秒后仍未答</td>
+      <td class="val-red">−3% / 2秒</td>
+      <td style="color:#666">加速警告，但不突兀</td>
+    </tr>
+    <tr>
+      <td>答错一次</td>
+      <td class="val-red">−35% 即时</td>
+      <td style="color:#666">错误代价明显，2次错误基本离开</td>
+    </tr>
+    <tr>
+      <td>耐心归零</td>
+      <td>顾客离开</td>
+      <td style="color:#666">损失本题全部收入，游戏继续</td>
+    </tr>
+  </table>
+</div>
+
+<!-- Streak & speed bonus -->
+<div class="section">
+  <div class="section-title">连胜奖励 & 速度奖励</div>
+  <table class="data-table">
+    <tr><th>条件</th><th>奖励</th><th>备注</th></tr>
+    <tr>
+      <td>3题连续一次答对</td>
+      <td class="val-gold">+¥15</td>
+      <td style="color:#666">答错后连胜归零</td>
+    </tr>
+    <tr>
+      <td>5题连续一次答对</td>
+      <td class="val-gold">+¥25</td>
+      <td style="color:#666">叠加在3连奖励之上</td>
+    </tr>
+    <tr>
+      <td>8位顾客全部接待完，计时未到</td>
+      <td class="val-gold">+¥10 × 剩余每10秒</td>
+      <td style="color:#666">剩60秒 = +¥60，快而准的额外激励</td>
+    </tr>
+  </table>
+</div>
+
+<!-- Run scenarios -->
+<div class="section">
+  <div class="section-title">三种典型局面的预期收入（8位顾客/局）</div>
+  <div class="scenario-grid">
+    <div class="scenario-card best">
+      <div class="sc-title">🌟 出色发挥</div>
+      <div class="sc-num">¥490</div>
+      <div class="sc-breakdown">
+        8题全对 × ¥54均值 = ¥432<br>
+        5连 × 1次 = ¥25<br>
+        剩余30秒速度奖 = ¥30<br>
+        <span style="color:#4a8a4a">记录榜值得期待</span>
+      </div>
+    </div>
+    <div class="scenario-card ok">
+      <div class="sc-title">😊 正常发挥</div>
+      <div class="sc-num">¥320</div>
+      <div class="sc-breakdown">
+        8题，2题答错重试 = ¥46均值<br>
+        3连 × 1次 = ¥15<br>
+        无速度奖（正好用完时间）<br>
+        <span style="color:#4a4a8a">班级贡献的主体</span>
+      </div>
+    </div>
+    <div class="scenario-card poor">
+      <div class="sc-title">😰 紧张失误</div>
+      <div class="sc-num">¥180</div>
+      <div class="sc-breakdown">
+        8题，3位顾客耐心耗尽离开<br>
+        剩5题，部分多次重试<br>
+        无连胜、无速度奖<br>
+        <span style="color:#6a2a2a">仍有贡献，不会0分</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="font-size:10px;color:#555;margin-top:4px">
+  所有数值均为初始提案，可在开发后测试调整。核心原则：正常发挥也有成就感，出色发挥明显更多钱，失误有代价但不绝望。
+</p>

@@ -11,14 +11,14 @@ export class PatienceBar extends Phaser.GameObjects.Container {
     super(scene, x, y);
     scene.add.existing(this);
 
-    this.emoji = scene.add.text(0, 0, '😊', { fontSize: '16px' }).setOrigin(0, 0.5);
-    scene.add.text(24, 0, '顾客耐心', { ...FONT_GREY, fontSize: '11px' }).setOrigin(0, 0.5);
+    this.emoji = scene.add.text(0, 0, '😊', { fontSize: '28px' }).setOrigin(0, 0.5);
+    scene.add.text(38, 0, '顾客耐心', { ...FONT_GREY, fontSize: '18px' }).setOrigin(0, 0.5);
 
-    const trackX = 80;
+    const trackX = 130;
     const trackW = width - trackX;
-    this.track = scene.add.rectangle(trackX, 0, trackW, 8, 0x1a1a1a)
+    this.track = scene.add.rectangle(trackX, 0, trackW, 14, 0x1a1a1a)
       .setOrigin(0, 0.5).setStrokeStyle(1, 0x2a2a2a);
-    this.fill = scene.add.rectangle(trackX, 0, trackW, 8, 0x5fa05f)
+    this.fill = scene.add.rectangle(trackX, 0, trackW, 14, 0x5fa05f)
       .setOrigin(0, 0.5);
 
     this.add([this.emoji, this.track, this.fill]);
@@ -26,7 +26,7 @@ export class PatienceBar extends Phaser.GameObjects.Container {
 
   update(value: number): void {
     const pct = Math.max(0, Math.min(100, value)) / 100;
-    this.fill.setSize(this.track.width * pct, 8);
+    this.fill.setSize(this.track.width * pct, 14);
 
     if (pct > 0.5) {
       this.fill.setFillStyle(0x5fa05f);

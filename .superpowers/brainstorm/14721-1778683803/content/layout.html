@@ -1,0 +1,439 @@
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Courier New', monospace; }
+
+h2 { font-size: 15px; margin-bottom: 4px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 12px; }
+
+.screen-wrap {
+  background: #111;
+  border: 2px solid #444;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.screen-wrap:hover { border-color: #7c6fff; }
+.screen-wrap.selected { border-color: #7c6fff; box-shadow: 0 0 0 3px #7c6fff44; }
+.screen-label {
+  padding: 6px 12px;
+  font-size: 11px;
+  background: #1a1a2a;
+  border-bottom: 1px solid #333;
+  color: #888;
+  letter-spacing: 1px;
+}
+
+/* HUD Top Bar */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 12px;
+  background: #080812;
+  border-bottom: 2px solid #222;
+  font-size: 11px;
+}
+.hud-class { color: #ffd060; }
+.hud-record { color: #6fcf6f; }
+.hud-timer { color: #cf9f4f; background: #1a1200; border: 1px solid #4a3a00; padding: 2px 8px; border-radius: 2px; }
+.hud-customers { color: #9f9fff; }
+
+/* Game Scene */
+.game-scene {
+  height: 110px;
+  background: linear-gradient(180deg, #0a0a1e 0%, #0a1a0a 55%, #1a1000 100%);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 2px solid #222;
+}
+/* Shelves */
+.shelf {
+  position: absolute;
+  top: 18px;
+  background: #3a2a10;
+  border: 1px solid #5a4a20;
+  border-bottom: 3px solid #5a4a20;
+}
+.shelf-left { left: 10px; width: 55px; height: 45px; }
+.shelf-right { right: 10px; width: 55px; height: 45px; }
+.shelf-item {
+  width: 8px; height: 10px;
+  display: inline-block;
+  margin: 4px 2px 0;
+  border: 1px solid;
+}
+
+/* Counter */
+.counter {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 140px; height: 28px;
+  background: #5a3a10;
+  border-top: 3px solid #8a5a20;
+  border-left: 2px solid #8a5a20;
+  border-right: 2px solid #8a5a20;
+}
+.counter-screen {
+  position: absolute;
+  top: -12px; left: 16px;
+  width: 26px; height: 18px;
+  background: #001a00;
+  border: 1px solid #005500;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px; color: #00ff00;
+}
+
+/* Cashier sprite */
+.cashier {
+  position: absolute;
+  bottom: 28px;
+  left: calc(50% - 30px);
+  width: 16px; height: 28px;
+}
+.cashier-body { width: 16px; height: 18px; background: #4a6ab0; border: 1px solid #6a8ad0; position: absolute; bottom: 0; }
+.cashier-head { width: 12px; height: 12px; background: #d4a070; border: 1px solid #b48050; position: absolute; top: 0; left: 2px; border-radius: 2px; }
+.cashier-hat { width: 14px; height: 5px; background: #c83030; border: 1px solid #e84040; position: absolute; top: -4px; left: 1px; }
+
+/* Customer sprite */
+.customer {
+  position: absolute;
+  bottom: 28px;
+  right: calc(50% - 52px);
+}
+.customer-body { width: 14px; height: 16px; background: #b06a4a; border: 1px solid #d08a6a; position: absolute; bottom: 0; }
+.customer-head { width: 12px; height: 11px; background: #e8c090; border: 1px solid #c8a070; position: absolute; top: 0; left: 1px; border-radius: 2px; }
+.customer-items {
+  position: absolute;
+  bottom: 28px;
+  right: calc(50% - 40px);
+  display: flex; gap: 2px;
+  font-size: 14px;
+}
+
+/* Speech bubble */
+.speech-bubble {
+  position: absolute;
+  top: 10px;
+  right: calc(50% - 90px);
+  background: #fff;
+  color: #333;
+  font-size: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid #ccc;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 10px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #fff;
+}
+
+/* Patience bar */
+.patience-wrap {
+  padding: 4px 12px;
+  background: #0a0a14;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid #1a1a2a;
+}
+.patience-label { font-size: 9px; color: #888; min-width: 55px; }
+.patience-track { flex: 1; height: 8px; background: #1a1a1a; border-radius: 1px; border: 1px solid #2a2a2a; overflow: hidden; }
+.patience-fill { height: 100%; transition: width 0.3s; }
+.fill-high { background: linear-gradient(90deg, #3a8a3a, #5fcf5f); width: 82%; }
+.fill-mid  { background: linear-gradient(90deg, #8a7a00, #d4c020); width: 45%; }
+.customer-emoji { font-size: 14px; }
+
+/* Step indicator */
+.step-bar {
+  display: flex;
+  gap: 0;
+  background: #0d0d18;
+  border-bottom: 1px solid #1a1a2a;
+}
+.step {
+  flex: 1; padding: 5px 8px;
+  font-size: 10px; text-align: center;
+  border-right: 1px solid #1a1a2a;
+  position: relative;
+}
+.step:last-child { border-right: none; }
+.step.done { background: #0a1a0a; color: #5fcf5f; }
+.step.active { background: #1a1400; color: #ffd060; }
+.step.pending { color: #333; }
+.step-num { font-size: 8px; margin-right: 3px; opacity: 0.7; }
+
+/* Dialogue */
+.dialogue {
+  padding: 10px 14px 6px;
+  background: #0c0c18;
+  border-bottom: 1px solid #1a1a2a;
+  min-height: 50px;
+}
+.dialogue-speaker { font-size: 9px; color: #888; margin-bottom: 4px; }
+.dialogue-text { font-size: 13px; color: #ddd; line-height: 1.8; }
+.kw {
+  display: inline-block;
+  padding: 0 3px; margin: 0 1px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.kw.circled {
+  background: #2a1a00;
+  border-color: #c89020;
+  color: #ffd060;
+  box-shadow: 0 0 4px #c8902044;
+}
+.kw.uncircled {
+  background: #111;
+  border-color: #333;
+  color: #aaa;
+}
+.kw.uncircled:hover { border-color: #666; }
+.kw.locked { color: #555; border-color: #222; }
+.coin-hint { font-size: 9px; color: #c89020; margin-left: 4px; }
+
+/* Answer area */
+.answer-area {
+  padding: 8px 12px;
+  background: #080812;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.answer-input-col { flex: 1; }
+.answer-label { font-size: 9px; color: #888; margin-bottom: 4px; }
+.answer-input {
+  width: 100%;
+  height: 32px;
+  background: #111;
+  border: 2px solid #555;
+  border-radius: 2px;
+  display: flex; align-items: center; padding: 0 8px;
+  font-size: 16px; color: #fff; font-family: 'Courier New', monospace;
+}
+.answer-input.locked { border-color: #222; color: #333; }
+.answer-input.active { border-color: #4a8a4a; }
+.lock-msg { font-size: 9px; color: #555; margin-top: 3px; }
+
+/* Numpad */
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 38px);
+  grid-template-rows: repeat(4, 30px);
+  gap: 3px;
+}
+.nk {
+  background: #1a1a2e;
+  border: 2px solid #2a2a4a;
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #9f9fff;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+}
+.nk:hover { background: #2a2a4e; border-color: #4a4a8a; }
+.nk.ok { background: #1a3a1a; border-color: #3a6a3a; color: #6fcf6f; }
+.nk.del { background: #2a1a1a; border-color: #4a2a2a; color: #cf6f6f; }
+.nk.wide { grid-column: span 2; }
+.nk.disabled { opacity: 0.2; cursor: default; }
+.nk.disabled:hover { background: #1a1a2e; border-color: #2a2a4a; }
+
+/* Bonus pop */
+.bonus-pop {
+  font-size: 10px; color: #ffd060;
+  background: #1a1200; border: 1px solid #5a4200;
+  padding: 1px 6px; border-radius: 8px;
+  display: inline-block; margin-left: 6px;
+}
+
+/* Screen label bottom */
+.screen-note {
+  padding: 6px 12px;
+  font-size: 10px; color: #666;
+  background: #0a0a12;
+  border-top: 1px solid #1a1a2a;
+  text-align: center;
+}
+</style>
+
+<h2>界面布局方案</h2>
+<p class="subtitle">左图：阶段② 圈关键词中 | 右图：阶段③ 数字键盘已解锁</p>
+
+<div class="split">
+
+  <!-- Phase 2: Circling keywords -->
+  <div class="screen-wrap" data-choice="layout" onclick="toggleSelect(this)">
+    <div class="screen-label">阶段② — 圈关键词（数字键盘锁定）</div>
+
+    <div class="hud">
+      <span class="hud-class">🪙 班级: ¥3,240</span>
+      <span class="hud-timer">⏱ 2:18</span>
+      <span class="hud-customers">👥 3/8</span>
+      <span class="hud-record">🏆 最高: ¥610</span>
+    </div>
+
+    <div class="game-scene">
+      <div class="shelf shelf-left">
+        <span class="shelf-item" style="background:#c84040;border-color:#e06060"></span>
+        <span class="shelf-item" style="background:#40a040;border-color:#60c060"></span>
+        <span class="shelf-item" style="background:#4060c0;border-color:#6080e0"></span>
+        <span class="shelf-item" style="background:#c0a040;border-color:#e0c060"></span>
+      </div>
+      <div class="shelf shelf-right">
+        <span class="shelf-item" style="background:#c06040;border-color:#e08060"></span>
+        <span class="shelf-item" style="background:#8040c0;border-color:#a060e0"></span>
+        <span class="shelf-item" style="background:#40c0a0;border-color:#60e0c0"></span>
+        <span class="shelf-item" style="background:#c04080;border-color:#e060a0"></span>
+      </div>
+      <div class="counter">
+        <div class="counter-screen">¥18</div>
+      </div>
+      <div class="cashier">
+        <div class="cashier-hat"></div>
+        <div class="cashier-head"></div>
+        <div class="cashier-body"></div>
+      </div>
+      <div class="customer" style="bottom:28px;right:calc(50% - 52px);position:absolute">
+        <div class="customer-head" style="width:12px;height:11px;background:#e8c090;border:1px solid #c8a070;position:absolute;top:0;left:1px;border-radius:2px"></div>
+        <div class="customer-body" style="width:14px;height:16px;background:#4a70b0;border:1px solid #6a90d0;position:absolute;bottom:0"></div>
+      </div>
+      <div class="customer-items">🍞🍞🍞</div>
+      <div class="speech-bubble">我要结账！</div>
+    </div>
+
+    <div class="patience-wrap">
+      <span class="customer-emoji">😊</span>
+      <span class="patience-label">顾客耐心</span>
+      <div class="patience-track"><div class="patience-fill fill-high"></div></div>
+    </div>
+
+    <div class="step-bar">
+      <div class="step active"><span class="step-num">①</span>圈关键词 ✏️</div>
+      <div class="step pending"><span class="step-num">②</span>输入答案</div>
+    </div>
+
+    <div class="dialogue">
+      <div class="dialogue-speaker">顾客说：</div>
+      <div class="dialogue-text">
+        我买了
+        <span class="kw circled">3个<span class="coin-hint">+¥5</span></span>
+        面包，每个
+        <span class="kw uncircled">6元</span>，
+        一共要付
+        <span class="kw uncircled">多少钱</span>
+        ？
+      </div>
+    </div>
+
+    <div class="answer-area">
+      <div class="answer-input-col">
+        <div class="answer-label">你的答案</div>
+        <div class="answer-input locked">_</div>
+        <div class="lock-msg">🔒 请先圈出所有关键词</div>
+      </div>
+      <div>
+        <div class="answer-label">数字键盘</div>
+        <div class="numpad">
+          <div class="nk disabled">7</div><div class="nk disabled">8</div><div class="nk disabled">9</div>
+          <div class="nk disabled">4</div><div class="nk disabled">5</div><div class="nk disabled">6</div>
+          <div class="nk disabled">1</div><div class="nk disabled">2</div><div class="nk disabled">3</div>
+          <div class="nk wide disabled">0</div><div class="nk del disabled">⌫</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">点击词语圈出关键词 → 解锁数字键盘</div>
+  </div>
+
+  <!-- Phase 3: Answering -->
+  <div class="screen-wrap" data-choice="layout" onclick="toggleSelect(this)">
+    <div class="screen-label">阶段③ — 输入答案（键盘已解锁）</div>
+
+    <div class="hud">
+      <span class="hud-class">🪙 班级: ¥3,280</span>
+      <span class="hud-timer">⏱ 2:11</span>
+      <span class="hud-customers">👥 3/8</span>
+      <span class="hud-record">🏆 最高: ¥610</span>
+    </div>
+
+    <div class="game-scene">
+      <div class="shelf shelf-left">
+        <span class="shelf-item" style="background:#c84040;border-color:#e06060"></span>
+        <span class="shelf-item" style="background:#40a040;border-color:#60c060"></span>
+        <span class="shelf-item" style="background:#4060c0;border-color:#6080e0"></span>
+        <span class="shelf-item" style="background:#c0a040;border-color:#e0c060"></span>
+      </div>
+      <div class="shelf shelf-right">
+        <span class="shelf-item" style="background:#c06040;border-color:#e08060"></span>
+        <span class="shelf-item" style="background:#8040c0;border-color:#a060e0"></span>
+        <span class="shelf-item" style="background:#40c0a0;border-color:#60e0c0"></span>
+        <span class="shelf-item" style="background:#c04080;border-color:#e060a0"></span>
+      </div>
+      <div class="counter">
+        <div class="counter-screen">¥18</div>
+      </div>
+      <div class="cashier">
+        <div class="cashier-hat"></div>
+        <div class="cashier-head"></div>
+        <div class="cashier-body"></div>
+      </div>
+      <div class="customer" style="bottom:28px;right:calc(50% - 52px);position:absolute">
+        <div class="customer-head" style="width:12px;height:11px;background:#e8c090;border:1px solid #c8a070;position:absolute;top:0;left:1px;border-radius:2px"></div>
+        <div class="customer-body" style="width:14px;height:16px;background:#4a70b0;border:1px solid #6a90d0;position:absolute;bottom:0"></div>
+      </div>
+      <div class="customer-items">🍞🍞🍞</div>
+    </div>
+
+    <div class="patience-wrap">
+      <span class="customer-emoji">😐</span>
+      <span class="patience-label">顾客耐心</span>
+      <div class="patience-track"><div class="patience-fill fill-mid"></div></div>
+      <span style="font-size:9px;color:#888">慢慢消耗中…</span>
+    </div>
+
+    <div class="step-bar">
+      <div class="step done"><span class="step-num">①</span>圈关键词 ✓ <span class="bonus-pop">+¥15</span></div>
+      <div class="step active"><span class="step-num">②</span>输入答案 ✏️</div>
+    </div>
+
+    <div class="dialogue">
+      <div class="dialogue-speaker">顾客说：</div>
+      <div class="dialogue-text">
+        我买了
+        <span class="kw circled">3个</span>
+        面包，每个
+        <span class="kw circled">6元</span>，
+        一共要付
+        <span class="kw circled">多少钱</span>
+        ？
+      </div>
+    </div>
+
+    <div class="answer-area">
+      <div class="answer-input-col">
+        <div class="answer-label">你的答案（元）</div>
+        <div class="answer-input active">1_</div>
+      </div>
+      <div>
+        <div class="answer-label">数字键盘</div>
+        <div class="numpad">
+          <div class="nk">7</div><div class="nk">8</div><div class="nk">9</div>
+          <div class="nk">4</div><div class="nk">5</div><div class="nk">6</div>
+          <div class="nk">1</div><div class="nk">2</div><div class="nk">3</div>
+          <div class="nk wide">0</div><div class="nk del">⌫</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">输入答案后按 ✓ 确认 — 答错可重试但耐心大跌</div>
+  </div>
+
+</div>
+
+<p style="margin-top:14px;font-size:11px;color:#777">
+  注：以上是比例示意图，实际在互动白板上各区域会更大。关键词圈出后显示金色高亮+奖金提示。
+</p>

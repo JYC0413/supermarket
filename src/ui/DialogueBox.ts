@@ -4,8 +4,8 @@ import type { Question, TextChunk } from '../logic/types';
 import { KeywordValidator } from '../logic/KeywordValidator';
 import { FONT, FONT_GOLD, FONT_GREY } from '../config';
 
-const CHUNK_PAD_X = 6;
-const CHUNK_PAD_Y = 3;
+const CHUNK_PAD_X = 10;
+const CHUNK_PAD_Y = 6;
 
 export class DialogueBox extends Phaser.GameObjects.Container {
   private circledIds: string[] = [];
@@ -14,7 +14,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, x: number, y: number, width: number) {
     super(scene, x, y);
-    this.bgRect = scene.add.rectangle(0, 0, width, 120, 0x0c0c18)
+    this.bgRect = scene.add.rectangle(0, 0, width, 200, 0x0c0c18)
       .setOrigin(0, 0).setStrokeStyle(1, 0x1a1a2a);
     this.add(this.bgRect);
     scene.add.existing(this);
@@ -38,7 +38,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
       if (cursorX + chunkWidth > maxWidth && cursorX > 10) {
         cursorX = 10;
-        cursorY += 38;
+        cursorY += 62;
       }
 
       chunkContainer.setPosition(cursorX, cursorY);
@@ -55,7 +55,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
     const scene = this.scene;
     const style = chk.clickable ? FONT : FONT_GREY;
     const label = scene.add.text(CHUNK_PAD_X, CHUNK_PAD_Y, chk.text, {
-      ...style, fontSize: '15px',
+      ...style, fontSize: '26px',
     });
     const w = label.width + CHUNK_PAD_X * 2;
     const h = label.height + CHUNK_PAD_Y * 2;
@@ -87,7 +87,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
     if (KeywordValidator.isValidKeyword(this.question, chk.id)) {
       this.circledIds.push(chk.id);
       bg.setFillStyle(0x2a1a00).setStrokeStyle(2, 0xc89020);
-      label.setStyle({ ...FONT_GOLD, fontSize: '15px' });
+      label.setStyle({ ...FONT_GOLD, fontSize: '26px' });
       this.scene.events.emit('keyword_circled', chk.id);
 
       if (KeywordValidator.allCircled(this.question, this.circledIds)) {
@@ -105,9 +105,9 @@ export class DialogueBox extends Phaser.GameObjects.Container {
   }
 
   showHardBadge(): void {
-    const badge = this.scene.add.text(4, -22, '⚡ 超难题！', {
-      ...FONT, color: '#ffd060', fontSize: '12px',
-      backgroundColor: '#1a1200', padding: { x: 5, y: 2 },
+    const badge = this.scene.add.text(4, -38, '⚡ 超难题！', {
+      ...FONT, color: '#ffd060', fontSize: '20px',
+      backgroundColor: '#1a1200', padding: { x: 8, y: 4 },
     });
     this.add(badge);
   }

@@ -14,19 +14,19 @@ export class HUDScene extends Phaser.Scene {
     const W = this.scale.width;
 
     // Background bar
-    this.add.rectangle(0, 0, W, 30, 0x080812).setOrigin(0, 0);
+    this.add.rectangle(0, 0, W, 52, 0x080812).setOrigin(0, 0);
 
-    this.classText = this.add.text(10, 15, '🪙 班级: ¥0', { ...FONT_GOLD, fontSize: '12px' })
+    this.classText = this.add.text(16, 26, '🪙 班级: ¥0', { ...FONT_GOLD, fontSize: '20px' })
       .setOrigin(0, 0.5);
-    this.timerText = this.add.text(W / 2, 15, '⏱ 5:00', {
-      ...FONT_GOLD, fontSize: '12px',
-      backgroundColor: '#1a1200', padding: { x: 8, y: 2 },
+    this.timerText = this.add.text(W / 2, 26, '⏱ 5:00', {
+      ...FONT_GOLD, fontSize: '22px',
+      backgroundColor: '#1a1200', padding: { x: 14, y: 4 },
     }).setOrigin(0.5, 0.5);
-    this.progressText = this.add.text(W * 0.72, 15, '👥 0/8', {
-      ...FONT_GREY, fontSize: '11px',
+    this.progressText = this.add.text(W * 0.72, 26, '👥 0/8', {
+      ...FONT_GREY, fontSize: '18px',
     }).setOrigin(0, 0.5);
-    this.highScoreText = this.add.text(W - 10, 15, '🏆 最高: ¥0', {
-      ...FONT_GREEN, fontSize: '12px',
+    this.highScoreText = this.add.text(W - 16, 26, '🏆 最高: ¥0', {
+      ...FONT_GREEN, fontSize: '20px',
     }).setOrigin(1, 0.5);
 
     // Listen for updates from GameScene

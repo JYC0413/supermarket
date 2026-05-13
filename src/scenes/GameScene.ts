@@ -189,12 +189,42 @@ export class GameScene extends Phaser.Scene {
 
   private endRound(): void {
     this.roundActive = false;
+    const roundEarned = this.score.turnTotal;
     this.score.finalizeRound();
-    this.add.text(this.scale.width / 2, this.scale.height / 2,
-      `本局收入: ¥${this.score.classTotal}`, {
-        fontFamily: '"Courier New", monospace',
-        fontSize: '28px', color: '#ffd060',
-      }).setOrigin(0.5);
+
+    const W = this.scale.width;
+    const H = this.scale.height;
+    const cx = W / 2;
+    const cy = H / 2;
+
+    const overlayBg = this.add.rectangle(cx, cy, 800, 420, 0x08080f)
+      .setOrigin(0.5).setStrokeStyle(3, 0x2a2a4a).setAlpha(0.97);
+    const titleTxt = this.add.text(cx, cy - 150, '回合结束', {
+      fontFamily: '"Courier New", monospace', fontSize: '30px', color: '#666',
+    }).setOrigin(0.5);
+    const earningTxt = this.add.text(cx, cy - 65, `本局收入  ¥${roundEarned}`, {
+      fontFamily: '"Courier New", monospace', fontSize: '52px', color: '#ffd060',
+    }).setOrigin(0.5);
+    const classTxt = this.add.text(cx, cy + 20, `班级累计  ¥${this.score.classTotal}`, {
+      fontFamily: '"Courier New", monospace', fontSize: '28px', color: '#9f9fff',
+    }).setOrigin(0.5);
+
+    const btnNext = this.add.text(cx - 150, cy + 130, '▶  再来一局', {
+      fontFamily: '"Courier New", monospace', fontSize: '26px', color: '#6fcf6f',
+      backgroundColor: '#0a2a0a', padding: { x: 24, y: 14 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    const btnConfig = this.add.text(cx + 150, cy + 130, '⚙  修改设置', {
+      fontFamily: '"Courier New", monospace', fontSize: '26px', color: '#aaa',
+      backgroundColor: '#111122', padding: { x: 24, y: 14 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    btnNext.on('pointerup', () => {
+      [overlayBg, titleTxt, earningTxt, classTxt, btnNext, btnConfig]
+        .forEach(o => o.destroy());
+      this.startRound();
+    });
+    btnConfig.on('pointerup', () => this.scene.start('ConfigScene'));
   }
 
   override update(_time: number, delta: number): void {

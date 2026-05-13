@@ -51,7 +51,8 @@ describe('QuestionBank', () => {
     expect(round).toHaveLength(8);
     const types = round.map(q => q.type);
     expect(types.filter(t => t === 'multiplication')).toHaveLength(3);
-    expect(types.filter(t => t === 'division_remainder')).toHaveLength(3);
+    const divCount = types.filter(t => t === 'division_remainder' || t === 'division_exact').length;
+    expect(divCount).toBe(3);
     expect(types.filter(t => t === 'mult_add')).toHaveLength(1);
     expect(types.filter(t => t === 'mult_sub')).toHaveLength(1);
     expect(round.filter(q => q.isHard)).toHaveLength(2);

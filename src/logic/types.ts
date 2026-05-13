@@ -3,6 +3,7 @@
 export type QuestionType =
   | 'multiplication'
   | 'division_remainder'
+  | 'division_exact'
   | 'mult_add'
   | 'mult_sub';
 

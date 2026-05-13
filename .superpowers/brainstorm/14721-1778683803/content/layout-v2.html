@@ -1,0 +1,437 @@
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Courier New', monospace; }
+
+h2 { font-size: 15px; margin-bottom: 4px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 12px; }
+
+.screen-wrap {
+  background: #111;
+  border: 2px solid #444;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.screen-label {
+  padding: 6px 12px;
+  font-size: 11px;
+  background: #1a1a2a;
+  border-bottom: 1px solid #333;
+  color: #888;
+  letter-spacing: 1px;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 12px;
+  background: #080812;
+  border-bottom: 2px solid #222;
+  font-size: 11px;
+}
+.hud-class { color: #ffd060; }
+.hud-record { color: #6fcf6f; }
+.hud-timer { color: #cf9f4f; background: #1a1200; border: 1px solid #4a3a00; padding: 2px 8px; border-radius: 2px; }
+.hud-customers { color: #9f9fff; }
+
+.game-scene {
+  height: 100px;
+  background: linear-gradient(180deg, #0a0a1e 0%, #0a1a0a 55%, #1a1000 100%);
+  position: relative;
+  overflow: hidden;
+  border-bottom: 2px solid #222;
+}
+.shelf {
+  position: absolute;
+  top: 14px;
+  background: #3a2a10;
+  border: 1px solid #5a4a20;
+  border-bottom: 3px solid #5a4a20;
+}
+.shelf-left { left: 8px; width: 52px; height: 40px; }
+.shelf-right { right: 8px; width: 52px; height: 40px; }
+.shelf-item {
+  width: 8px; height: 10px;
+  display: inline-block;
+  margin: 4px 2px 0;
+  border: 1px solid;
+}
+.counter {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 130px; height: 24px;
+  background: #5a3a10;
+  border-top: 3px solid #8a5a20;
+  border-left: 2px solid #8a5a20;
+  border-right: 2px solid #8a5a20;
+}
+.counter-screen {
+  position: absolute;
+  top: -11px; left: 14px;
+  width: 26px; height: 16px;
+  background: #001a00;
+  border: 1px solid #005500;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px; color: #00ff00;
+}
+.cashier {
+  position: absolute;
+  bottom: 24px;
+  left: calc(50% - 28px);
+}
+.cashier-hat { width: 14px; height: 5px; background: #c83030; border: 1px solid #e84040; position: absolute; top: -4px; left: 1px; }
+.cashier-head { width: 12px; height: 11px; background: #d4a070; border: 1px solid #b48050; position: absolute; top: 0; left: 2px; border-radius: 2px; }
+.cashier-body { width: 16px; height: 17px; background: #4a6ab0; border: 1px solid #6a8ad0; position: absolute; bottom: 0; }
+
+.customer {
+  position: absolute;
+  bottom: 24px;
+  right: calc(50% - 50px);
+}
+.customer-head { width: 12px; height: 11px; background: #e8c090; border: 1px solid #c8a070; position: absolute; top: 0; left: 1px; border-radius: 2px; }
+.customer-body { width: 14px; height: 15px; background: #4a70b0; border: 1px solid #6a90d0; position: absolute; bottom: 0; }
+.customer-items {
+  position: absolute;
+  bottom: 24px;
+  right: calc(50% - 38px);
+  font-size: 13px;
+}
+.speech-bubble {
+  position: absolute;
+  top: 8px;
+  right: calc(50% - 88px);
+  background: #fff;
+  color: #333;
+  font-size: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid #ccc;
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 10px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #fff;
+}
+
+.patience-wrap {
+  padding: 4px 12px;
+  background: #0a0a14;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid #1a1a2a;
+}
+.patience-label { font-size: 9px; color: #888; min-width: 55px; }
+.patience-track { flex: 1; height: 7px; background: #1a1a1a; border-radius: 1px; border: 1px solid #2a2a2a; overflow: hidden; }
+.patience-fill { height: 100%; }
+.fill-high { background: linear-gradient(90deg, #3a8a3a, #5fcf5f); width: 80%; }
+.fill-mid  { background: linear-gradient(90deg, #8a7a00, #d4c020); width: 44%; }
+.customer-emoji { font-size: 13px; }
+
+/* 3-step bar */
+.step-bar {
+  display: flex;
+  gap: 0;
+  background: #0d0d18;
+  border-bottom: 1px solid #1a1a2a;
+}
+.step {
+  flex: 1; padding: 5px 6px;
+  font-size: 10px; text-align: center;
+  border-right: 1px solid #1a1a2a;
+  position: relative;
+}
+.step:last-child { border-right: none; }
+.step.done { background: #0a1a0a; color: #5fcf5f; }
+.step.active { background: #1a1400; color: #ffd060; }
+.step.pending { color: #333; }
+.step-num { font-size: 8px; margin-right: 3px; opacity: 0.7; }
+.step-arrow {
+  position: absolute; right: -8px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 9px; color: #333; z-index: 1;
+}
+
+/* Dialogue */
+.dialogue {
+  padding: 8px 12px 6px;
+  background: #0c0c18;
+  border-bottom: 1px solid #1a1a2a;
+}
+.dialogue-speaker { font-size: 9px; color: #888; margin-bottom: 5px; }
+.dialogue-text { font-size: 14px; color: #ddd; line-height: 2; }
+
+/* Clickable word chunks */
+.chunk {
+  display: inline-block;
+  padding: 1px 4px; margin: 0 2px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  user-select: none;
+}
+/* Normal: subtle border showing it's clickable */
+.chunk.normal {
+  border-color: #2a2a3a;
+  color: #ccc;
+  background: #111;
+}
+.chunk.normal:hover {
+  border-color: #4a4a6a;
+  background: #1a1a2a;
+}
+/* Circled: gold highlight = keyword confirmed */
+.chunk.circled {
+  background: #2a1a00;
+  border-color: #c89020;
+  color: #ffd060;
+  box-shadow: 0 0 5px #c8902055;
+}
+/* Wrong click: dim red flash style */
+.chunk.wrong {
+  border-color: #4a2a2a;
+  color: #888;
+  background: #1a0a0a;
+}
+/* Plain text (connectives like 一共/要付) */
+.plain { color: #999; font-size: 14px; }
+
+.coin-hint { font-size: 9px; color: #c89020; margin-left: 3px; }
+.kw-hint { font-size: 9px; color: #666; margin-top: 3px; }
+
+/* Answer area */
+.answer-area {
+  padding: 8px 12px;
+  background: #080812;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.answer-input-col { flex: 1; }
+.answer-label { font-size: 9px; color: #888; margin-bottom: 4px; }
+.answer-input {
+  width: 100%; height: 32px;
+  background: #111;
+  border: 2px solid;
+  border-radius: 2px;
+  display: flex; align-items: center; padding: 0 8px;
+  font-size: 16px; color: #fff; font-family: 'Courier New', monospace;
+}
+.answer-input.locked { border-color: #222; color: #333; }
+.answer-input.active { border-color: #4a8a4a; }
+.lock-msg { font-size: 9px; color: #555; margin-top: 3px; }
+
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  grid-template-rows: repeat(4, 28px);
+  gap: 3px;
+}
+.nk {
+  background: #1a1a2e;
+  border: 2px solid #2a2a4a;
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #9f9fff;
+  font-family: 'Courier New', monospace;
+}
+.nk.del { background: #2a1a1a; border-color: #4a2a2a; color: #cf6f6f; }
+.nk.wide { grid-column: span 2; }
+.nk.confirm { background: #1a3a1a; border-color: #3a6a3a; color: #6fcf6f; font-size: 11px; }
+.nk.disabled { opacity: 0.2; }
+
+.bonus-pop {
+  font-size: 9px; color: #ffd060;
+  background: #1a1200; border: 1px solid #5a4200;
+  padding: 1px 5px; border-radius: 8px;
+  display: inline-block; margin-left: 5px;
+}
+.screen-note {
+  padding: 5px 12px;
+  font-size: 10px; color: #555;
+  background: #0a0a12;
+  border-top: 1px solid #1a1a2a;
+  text-align: center;
+}
+
+/* Wrong click animation demo */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+.chunk.wrong { animation: shake 0.25s ease; }
+</style>
+
+<h2>界面布局 v2 — 三步流程 + 全词可点</h2>
+<p class="subtitle">左图：②圈关键词中（部分已圈，部分已排除） | 右图：③答题已解锁</p>
+
+<div class="split">
+
+  <!-- Phase 2: circling, mid-progress -->
+  <div class="screen-wrap">
+    <div class="screen-label">阶段② — 圈关键词（键盘锁定）</div>
+
+    <div class="hud">
+      <span class="hud-class">🪙 班级: ¥3,240</span>
+      <span class="hud-timer">⏱ 2:18</span>
+      <span class="hud-customers">👥 3/8</span>
+      <span class="hud-record">🏆 最高: ¥610</span>
+    </div>
+
+    <div class="game-scene">
+      <div class="shelf shelf-left">
+        <span class="shelf-item" style="background:#c84040;border-color:#e06060"></span>
+        <span class="shelf-item" style="background:#40a040;border-color:#60c060"></span>
+        <span class="shelf-item" style="background:#4060c0;border-color:#6080e0"></span>
+      </div>
+      <div class="shelf shelf-right">
+        <span class="shelf-item" style="background:#c06040;border-color:#e08060"></span>
+        <span class="shelf-item" style="background:#8040c0;border-color:#a060e0"></span>
+        <span class="shelf-item" style="background:#40c0a0;border-color:#60e0c0"></span>
+      </div>
+      <div class="counter"><div class="counter-screen">¥?</div></div>
+      <div class="cashier">
+        <div class="cashier-hat"></div><div class="cashier-head"></div><div class="cashier-body"></div>
+      </div>
+      <div class="customer">
+        <div class="customer-head"></div><div class="customer-body"></div>
+      </div>
+      <div class="customer-items">🍞🍞🍞</div>
+      <div class="speech-bubble">我要结账～</div>
+    </div>
+
+    <div class="patience-wrap">
+      <span class="customer-emoji">😊</span>
+      <span class="patience-label">顾客耐心</span>
+      <div class="patience-track"><div class="patience-fill fill-high"></div></div>
+    </div>
+
+    <div class="step-bar">
+      <div class="step done"><span class="step-num">①</span>读题 ✓</div>
+      <div class="step active"><span class="step-num">②</span>圈关键词 ✏️</div>
+      <div class="step pending"><span class="step-num">③</span>答题</div>
+    </div>
+
+    <div class="dialogue">
+      <div class="dialogue-speaker">顾客说：</div>
+      <div class="dialogue-text">
+        <span class="chunk wrong">我</span>
+        <span class="plain">买了</span>
+        <span class="chunk circled">3个<span class="coin-hint">+¥5</span></span>
+        <span class="chunk wrong">面包</span>
+        <span class="plain">，每个</span>
+        <span class="chunk normal">6元</span>
+        <span class="plain">，一共要付</span>
+        <span class="chunk normal">多少钱</span>
+        <span class="plain">？</span>
+      </div>
+      <div class="kw-hint">💡 点击句子中的重要信息词（还差 2 个）</div>
+    </div>
+
+    <div class="answer-area">
+      <div class="answer-input-col">
+        <div class="answer-label">你的答案</div>
+        <div class="answer-input locked">_</div>
+        <div class="lock-msg">🔒 圈完关键词后解锁</div>
+      </div>
+      <div>
+        <div class="answer-label" style="color:#333">数字键盘</div>
+        <div class="numpad">
+          <div class="nk disabled">7</div><div class="nk disabled">8</div><div class="nk disabled">9</div>
+          <div class="nk disabled">4</div><div class="nk disabled">5</div><div class="nk disabled">6</div>
+          <div class="nk disabled">1</div><div class="nk disabled">2</div><div class="nk disabled">3</div>
+          <div class="nk wide disabled">0</div><div class="nk del disabled">⌫</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">误点非关键词 → 词块抖动复位，无惩罚</div>
+  </div>
+
+  <!-- Phase 3: answering -->
+  <div class="screen-wrap">
+    <div class="screen-label">阶段③ — 答题（键盘已解锁）</div>
+
+    <div class="hud">
+      <span class="hud-class">🪙 班级: ¥3,255</span>
+      <span class="hud-timer">⏱ 2:09</span>
+      <span class="hud-customers">👥 3/8</span>
+      <span class="hud-record">🏆 最高: ¥610</span>
+    </div>
+
+    <div class="game-scene">
+      <div class="shelf shelf-left">
+        <span class="shelf-item" style="background:#c84040;border-color:#e06060"></span>
+        <span class="shelf-item" style="background:#40a040;border-color:#60c060"></span>
+        <span class="shelf-item" style="background:#4060c0;border-color:#6080e0"></span>
+      </div>
+      <div class="shelf shelf-right">
+        <span class="shelf-item" style="background:#c06040;border-color:#e08060"></span>
+        <span class="shelf-item" style="background:#8040c0;border-color:#a060e0"></span>
+        <span class="shelf-item" style="background:#40c0a0;border-color:#60e0c0"></span>
+      </div>
+      <div class="counter"><div class="counter-screen">¥18</div></div>
+      <div class="cashier">
+        <div class="cashier-hat"></div><div class="cashier-head"></div><div class="cashier-body"></div>
+      </div>
+      <div class="customer">
+        <div class="customer-head"></div><div class="customer-body"></div>
+      </div>
+      <div class="customer-items">🍞🍞🍞</div>
+    </div>
+
+    <div class="patience-wrap">
+      <span class="customer-emoji">😐</span>
+      <span class="patience-label">顾客耐心</span>
+      <div class="patience-track"><div class="patience-fill fill-mid"></div></div>
+      <span style="font-size:9px;color:#888">消耗中…</span>
+    </div>
+
+    <div class="step-bar">
+      <div class="step done"><span class="step-num">①</span>读题 ✓</div>
+      <div class="step done"><span class="step-num">②</span>圈关键词 ✓ <span class="bonus-pop">+¥15</span></div>
+      <div class="step active"><span class="step-num">③</span>答题 ✏️</div>
+    </div>
+
+    <div class="dialogue">
+      <div class="dialogue-speaker">顾客说：</div>
+      <div class="dialogue-text">
+        <span class="chunk wrong" style="animation:none">我</span>
+        <span class="plain">买了</span>
+        <span class="chunk circled">3个</span>
+        <span class="chunk wrong" style="animation:none">面包</span>
+        <span class="plain">，每个</span>
+        <span class="chunk circled">6元</span>
+        <span class="plain">，一共要付</span>
+        <span class="chunk circled">多少钱</span>
+        <span class="plain">？</span>
+      </div>
+    </div>
+
+    <div class="answer-area">
+      <div class="answer-input-col">
+        <div class="answer-label">你的答案（元）</div>
+        <div class="answer-input active">1_</div>
+      </div>
+      <div>
+        <div class="answer-label">数字键盘</div>
+        <div class="numpad">
+          <div class="nk">7</div><div class="nk">8</div><div class="nk">9</div>
+          <div class="nk">4</div><div class="nk">5</div><div class="nk">6</div>
+          <div class="nk">1</div><div class="nk">2</div><div class="nk">3</div>
+          <div class="nk wide">0</div><div class="nk del">⌫</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-note">答错可重试，耐心大跌；"我""面包"已被排除（灰色）</div>
+  </div>
+
+</div>
+
+<p style="margin-top:14px;font-size:11px;color:#666">
+  切词单位：按意义短语（"3个"、"6元"、"多少钱"），不按单个汉字。
+  连接词（"一共要付"、"买了"）不参与点击，灰色显示区分。
+</p>
