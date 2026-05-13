@@ -5,7 +5,7 @@ import { KeywordValidator } from '../logic/KeywordValidator';
 import { FONT, FONT_GOLD, FONT_GREY } from '../config';
 
 const CHUNK_PAD_X = 10;
-const CHUNK_PAD_Y = 6;
+const CHUNK_PAD_Y = 10;
 
 export class DialogueBox extends Phaser.GameObjects.Container {
   private circledIds: string[] = [];
@@ -14,8 +14,8 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, x: number, y: number, width: number) {
     super(scene, x, y);
-    this.bgRect = scene.add.rectangle(0, 0, width, 200, 0x0c0c18)
-      .setOrigin(0, 0).setStrokeStyle(1, 0x1a1a2a);
+    this.bgRect = scene.add.rectangle(0, 0, width, 240, 0x1a120a)
+      .setOrigin(0, 0).setStrokeStyle(1, 0x3a2a18);
     this.add(this.bgRect);
     scene.add.existing(this);
   }
@@ -28,8 +28,8 @@ export class DialogueBox extends Phaser.GameObjects.Container {
       (this.list[1] as Phaser.GameObjects.GameObject).destroy();
     }
 
-    let cursorX = 10;
-    let cursorY = 12;
+    let cursorX = 14;
+    let cursorY = 22;
     const maxWidth = this.bgRect.width * 0.95;
 
     for (const chk of question.chunks) {

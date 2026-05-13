@@ -44,13 +44,17 @@ export class GameScene extends Phaser.Scene {
     const W = this.scale.width;
     const H = this.scale.height;
 
-    this.add.rectangle(0, 0, W, H, COLORS.bg).setOrigin(0, 0);
+    // UI 区背景色（温暖深棕，不是冷黑）
+    this.add.rectangle(0, 0, W, H, 0x1a120a).setOrigin(0, 0);
     this.buildStoreScene(W, H);
 
-    this.patienceBar = new PatienceBar(this, 10, H * 0.50, W - 20);
-    this.stepIndicator = new StepIndicator(this, 0, H * 0.545, W);
-    this.dialogueBox = new DialogueBox(this, 0, H * 0.60, W * 0.60);
-    this.numPad = new NumPad(this, W * 0.625, H * 0.595);
+    // 场景底线分隔条
+    this.add.rectangle(0, H * 0.52, W, 4, 0x5a3a10).setOrigin(0, 0);
+
+    this.patienceBar    = new PatienceBar(this, 16, H * 0.535, W - 32);
+    this.stepIndicator  = new StepIndicator(this, 0, H * 0.585, W);
+    this.dialogueBox    = new DialogueBox(this, 0, H * 0.655, W * 0.595);
+    this.numPad         = new NumPad(this, W * 0.615, H * 0.648);
     this.numPad.setLocked(true);
 
     this.events.on('keyword_circled', (_id: string) => this.onKeywordCircled());
@@ -95,8 +99,8 @@ export class GameScene extends Phaser.Scene {
 
     const W = this.scale.width;
     const H = this.scale.height;
-    this.customer = new CustomerSprite(this, W * 0.72, H * 0.43);
-    this.customer.walkIn(W * 0.62, () => {
+    this.customer = new CustomerSprite(this, W * 0.78, H * 0.445);
+    this.customer.walkIn(W * 0.63, () => {
       this.dialogueBox.load(q);
       if (q.isHard) this.dialogueBox.showHardBadge();
       this.stepIndicator.setStep('keyword');
@@ -105,7 +109,7 @@ export class GameScene extends Phaser.Scene {
 
   private onKeywordCircled(): void {
     this.score.stageKeywordBonus();
-    this.showFloat(this.scale.width * 0.58, this.scale.height * 0.60, '+¥8', '#ffd060');
+    this.showFloat(this.scale.width * 0.58, this.scale.height * 0.655, '+¥8', '#ffd060');
   }
 
   private unlockAnswer(): void {
@@ -269,105 +273,98 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildStoreScene(W: number, H: number): void {
-    const S = 6;
-    const sceneBot = H * 0.50;
-    const floorY   = H * 0.32;
-    const counterY = H * 0.43;  // counter top surface y
+    const S        = 6;
+    const sceneBot = H * 0.52;
+    const floorY   = H * 0.35;
+    const counterY = H * 0.445;   // 收银台台面顶部 Y
+    const counterW = 620;
+    const counterH = 72;
+    const counterTopH = 16;
+    const counterX = (W - counterW) / 2;
 
-    // === 后墙 ===
-    const g = this.add.graphics();
-    g.fillStyle(0x1a0d05);
-    g.fillRect(0, 52, W, floorY - 52);
+    // ── 1. 背景层 ────────────────────────────────────────
+    const gBg = this.add.graphics();
 
-    // === 地板 ===
-    g.fillStyle(0xc8a87a);
-    g.fillRect(0, floorY, W, sceneBot - floorY);
-    // 地板网格线
-    g.lineStyle(1, 0xb09060, 0.5);
-    const gridSize = 64;
-    for (let x = 0; x <= W; x += gridSize)  { g.lineBetween(x, floorY, x, sceneBot); }
-    for (let y = floorY; y <= sceneBot; y += gridSize) { g.lineBetween(0, y, W, y); }
+    // 后墙（温暖米白）
+    gBg.fillStyle(0xf5e6d0);
+    gBg.fillRect(0, 52, W, floorY - 52);
 
-    // === 货架（5组，等间距） ===
-    const shelfPositions = [0.08, 0.25, 0.50, 0.72, 0.90].map(p => p * W);
-    const shelfUnitW = 200;
-    const shelfUnitH = 180;
-    const shelfTop   = 60;
-    const numShelves = 3;
-    const shelfColors = [0xe74c3c, 0x3498db, 0x2ecc71, 0xf39c12, 0x9b59b6,
-                         0x1abc9c, 0xe67e22, 0xff69b4, 0x87ceeb, 0xffd700];
-    let colorIdx = 0;
+    // 墙上护墙板
+    gBg.fillStyle(0xd4a870);
+    gBg.fillRect(0, floorY - 36, W, 36);
+    gBg.lineStyle(2, 0xb8854a);
+    gBg.lineBetween(0, floorY - 36, W, floorY - 36);
 
+    // 地板（暖木色）
+    gBg.fillStyle(0xf2dbb5);
+    gBg.fillRect(0, floorY, W, sceneBot - floorY);
+    gBg.lineStyle(1, 0xe8cc9a, 0.7);
+    const gs = 64;
+    for (let x = 0; x <= W; x += gs) gBg.lineBetween(x, floorY, x, sceneBot);
+    for (let y = floorY; y <= sceneBot; y += gs) gBg.lineBetween(0, y, W, y);
+
+    // ── 2. 货架（3 组，在后墙上）────────────────────────
+    const shelfPositions = [W * 0.18, W * 0.50, W * 0.82];
+    const shelfUnitW = 240, shelfUnitH = 200;
+    const shelfTop   = 56;
+    const productColors = [
+      0xe74c3c, 0x3498db, 0x2ecc71, 0xf39c12, 0x9b59b6,
+      0x1abc9c, 0xe67e22, 0xff69b4, 0x87ceeb, 0xffd700,
+    ];
+    let ci = 0;
     for (const cx of shelfPositions) {
       const sx = cx - shelfUnitW / 2;
-      // 货架背板
-      g.fillStyle(0x5a3010);
-      g.fillRect(sx, shelfTop, shelfUnitW, shelfUnitH);
-      // 货架正面边框
-      g.lineStyle(3, 0x8b5520);
-      g.strokeRect(sx, shelfTop, shelfUnitW, shelfUnitH);
-      // 3层层板
-      for (let row = 0; row < numShelves; row++) {
-        const plankY = shelfTop + (row + 1) * (shelfUnitH / (numShelves + 1));
-        // 层板
-        g.fillStyle(0x8b5520);
-        g.fillRect(sx, plankY - 5, shelfUnitW, 8);
-        // 层板上放的商品（小彩色方块）
-        const itemsPerRow = 5;
-        const itemW = 24, itemH = 28;
-        const itemPad = (shelfUnitW - itemsPerRow * itemW) / (itemsPerRow + 1);
-        for (let col = 0; col < itemsPerRow; col++) {
-          const ix = sx + itemPad + col * (itemW + itemPad);
-          const iy = plankY - 5 - itemH - 2;
-          const c = shelfColors[colorIdx % shelfColors.length];
-          colorIdx++;
-          g.fillStyle(c);
-          g.fillRect(ix, iy, itemW, itemH);
-          // 商品高光
-          g.fillStyle(0xffffff, 0.25);
-          g.fillRect(ix + 2, iy + 2, itemW - 4, 4);
+      gBg.fillStyle(0x7a4a2a);
+      gBg.fillRect(sx, shelfTop, shelfUnitW, shelfUnitH);
+      gBg.fillStyle(0xd4926a);
+      gBg.fillRect(sx + 6, shelfTop + 6, shelfUnitW - 12, shelfUnitH - 12);
+      for (let row = 0; row < 3; row++) {
+        const plankY = shelfTop + (row + 1) * (shelfUnitH / 4);
+        gBg.fillStyle(0x7a4a2a);
+        gBg.fillRect(sx, plankY - 5, shelfUnitW, 9);
+        const iW = 28, iH = 32, nItems = 6;
+        const pad = (shelfUnitW - nItems * iW) / (nItems + 1);
+        for (let col = 0; col < nItems; col++) {
+          const ix = sx + pad + col * (iW + pad);
+          const iy = plankY - 5 - iH;
+          gBg.fillStyle(productColors[ci++ % productColors.length]);
+          gBg.fillRect(ix, iy, iW, iH);
+          gBg.fillStyle(0xffffff, 0.22);
+          gBg.fillRect(ix + 2, iy + 2, iW - 4, 5);
         }
       }
-      // 货架底部支柱
-      g.fillStyle(0x6b3a0f);
-      g.fillRect(sx + 4, shelfTop + shelfUnitH, 12, 20);
-      g.fillRect(sx + shelfUnitW - 16, shelfTop + shelfUnitH, 12, 20);
+      gBg.lineStyle(2, 0x5a3010);
+      gBg.strokeRect(sx, shelfTop, shelfUnitW, shelfUnitH);
     }
 
-    // === 收银台 ===
-    const counterW  = 900;
-    const counterFH = 80;   // 正面高度
-    const counterTopH = 18; // 台面高度
-    const counterX  = (W - counterW) / 2;
+    // ── 3. 收银员（先于柜台画，柜台会盖住下半身）────────
+    this.add.image(W * 0.40, counterY, 'urban', 22).setScale(S).setOrigin(0.5, 1);
+
+    // ── 4. 收银台（画在收银员之后，遮住下半身）───────────
+    const gCounter = this.add.graphics();
     // 台面
-    g.fillStyle(0xa0522d);
-    g.fillRect(counterX, counterY - counterTopH, counterW, counterTopH);
-    g.fillStyle(0xc47a45);
-    g.fillRect(counterX, counterY - counterTopH, counterW, 5); // 台面高光
+    gCounter.fillStyle(0xc4863c);
+    gCounter.fillRect(counterX, counterY - counterTopH, counterW, counterTopH);
+    gCounter.fillStyle(0xdea050);
+    gCounter.fillRect(counterX + 2, counterY - counterTopH + 2, counterW - 4, 5);
     // 正面
-    g.fillStyle(0x7b3a15);
-    g.fillRect(counterX, counterY, counterW, counterFH);
-    // 正面板条纹
-    g.lineStyle(1, 0x5a2a0a, 0.6);
-    for (let x = counterX + 80; x < counterX + counterW; x += 80) {
-      g.lineBetween(x, counterY, x, counterY + counterFH);
-    }
-    // 台面边框
-    g.lineStyle(2, 0x8b5520);
-    g.strokeRect(counterX, counterY - counterTopH, counterW, counterTopH);
-    // 收银机（台面右侧）
-    const regX = counterX + counterW - 160;
-    const regY = counterY - counterTopH - 50;
-    g.fillStyle(0x444444);
-    g.fillRect(regX, regY, 70, 50);
-    g.fillStyle(0x222222);
-    g.fillRect(regX + 5, regY + 5, 60, 28); // 屏幕
-    g.fillStyle(0x00aa44);
-    g.fillRect(regX + 8, regY + 8, 54, 22); // 屏幕发光
-    g.fillStyle(0x666666);
-    g.fillRect(regX + 10, regY + 36, 50, 10); // 键盘区
-
-    // === 收银员 tile（仍用 Kenney）===
-    this.add.image(W * 0.38, counterY, 'urban', 22).setScale(S).setOrigin(0.5, 1);
+    gCounter.fillStyle(0x9b5a28);
+    gCounter.fillRect(counterX, counterY, counterW, counterH);
+    gCounter.lineStyle(1, 0x7a3e14, 0.7);
+    for (let x = counterX + 80; x < counterX + counterW; x += 80)
+      gCounter.lineBetween(x, counterY, x, counterY + counterH);
+    gCounter.lineStyle(2, 0xb07030);
+    gCounter.strokeRect(counterX, counterY - counterTopH, counterW, counterTopH + counterH);
+    // 收银机
+    const regX = counterX + counterW - 140;
+    const regY = counterY - counterTopH - 54;
+    gCounter.fillStyle(0x55514e);
+    gCounter.fillRect(regX, regY, 80, 54);
+    gCounter.fillStyle(0x1a1a1a);
+    gCounter.fillRect(regX + 5, regY + 5, 70, 32);
+    gCounter.fillStyle(0x22cc55);
+    gCounter.fillRect(regX + 8, regY + 8, 64, 26);
+    gCounter.fillStyle(0x665544);
+    gCounter.fillRect(regX + 8, regY + 40, 64, 10);
   }
 }
