@@ -1,6 +1,6 @@
 // src/ui/PatienceBar.ts
 import Phaser from 'phaser';
-import { FONT_GREY } from '../config';
+import { FONT_GREY, COLORS } from './UITheme';
 
 export class PatienceBar extends Phaser.GameObjects.Container {
   private fill: Phaser.GameObjects.Rectangle;
@@ -16,7 +16,7 @@ export class PatienceBar extends Phaser.GameObjects.Container {
 
     const trackX = 130;
     const trackW = width - trackX;
-    this.track = scene.add.rectangle(trackX, 0, trackW, 14, 0x1a1a1a)
+    this.track = scene.add.rectangle(trackX, 0, trackW, 14, COLORS.bgWarm)
       .setOrigin(0, 0.5).setStrokeStyle(1, 0x2a2a2a);
     this.fill = scene.add.rectangle(trackX, 0, trackW, 14, 0x5fa05f)
       .setOrigin(0, 0.5);

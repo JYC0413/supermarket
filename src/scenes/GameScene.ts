@@ -10,6 +10,7 @@ import { PatienceBar } from '../ui/PatienceBar';
 import { StepIndicator } from '../ui/StepIndicator';
 import { CustomerSprite } from '../ui/CustomerSprite';
 import { DEFAULT_SETTINGS } from '../config';
+import { COLORS, FONT, COLOR_STR } from '../ui/UITheme';
 import type { Question, GameSettings } from '../logic/types';
 
 export class GameScene extends Phaser.Scene {
@@ -45,11 +46,11 @@ export class GameScene extends Phaser.Scene {
     const H = this.scale.height;
 
     // UI 区背景色（温暖深棕，不是冷黑）
-    this.add.rectangle(0, 0, W, H, 0x1a120a).setOrigin(0, 0);
+    this.add.rectangle(0, 0, W, H, COLORS.bgWarm).setOrigin(0, 0);
     this.buildStoreScene(W, H);
 
     // 场景底线分隔条
-    this.add.rectangle(0, H * 0.52, W, 4, 0x5a3a10).setOrigin(0, 0);
+    this.add.rectangle(0, H * 0.52, W, 4, COLORS.woodDark).setOrigin(0, 0);
 
     this.patienceBar    = new PatienceBar(this, 20, H * 0.535, W - 40);
     this.stepIndicator  = new StepIndicator(this, 0, H * 0.583, W);
@@ -199,10 +200,10 @@ export class GameScene extends Phaser.Scene {
     const cx = W / 2;
     const cy = H / 2;
 
-    const overlayBg = this.add.rectangle(cx, cy, 800, 420, 0x08080f)
-      .setOrigin(0.5).setStrokeStyle(3, 0x2a2a4a).setAlpha(0.97);
+    const overlayBg = this.add.rectangle(cx, cy, 800, 420, COLORS.hudBgTop)
+      .setOrigin(0.5).setStrokeStyle(3, COLORS.woodDark).setAlpha(0.97);
     const titleTxt = this.add.text(cx, cy - 150, '回合结束', {
-      fontFamily: '"Courier New", monospace', fontSize: '30px', color: '#666',
+      fontFamily: '"Courier New", monospace', fontSize: '30px', color: COLOR_STR.inkLight,
     }).setOrigin(0.5);
     const earningTxt = this.add.text(cx, cy - 65, `本局收入  ¥${roundEarned}`, {
       fontFamily: '"Courier New", monospace', fontSize: '52px', color: '#ffd060',
@@ -265,7 +266,7 @@ export class GameScene extends Phaser.Scene {
 
   private showFloat(x: number, y: number, text: string, color: string): void {
     const t = this.add.text(x, y, text, {
-      fontFamily: '"Courier New", monospace', fontSize: '18px', color,
+      fontFamily: FONT.fontFamily, fontSize: '18px', color,
     }).setOrigin(0.5);
     this.tweens.add({
       targets: t, y: y - 50, alpha: 0, duration: 1000,

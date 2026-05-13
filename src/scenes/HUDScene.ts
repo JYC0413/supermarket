@@ -1,6 +1,6 @@
 // src/scenes/HUDScene.ts
 import Phaser from 'phaser';
-import { FONT_GOLD, FONT_GREEN, FONT_GREY } from '../config';
+import { FONT_GOLD, FONT_GREEN, FONT_GREY, COLORS } from '../ui/UITheme';
 
 export class HUDScene extends Phaser.Scene {
   private classText!: Phaser.GameObjects.Text;
@@ -14,13 +14,13 @@ export class HUDScene extends Phaser.Scene {
     const W = this.scale.width;
 
     // Background bar
-    this.add.rectangle(0, 0, W, 52, 0x080812).setOrigin(0, 0);
+    this.add.rectangle(0, 0, W, 52, COLORS.hudBgTop).setOrigin(0, 0);
 
     this.classText = this.add.text(16, 26, '🪙 班级: ¥0', { ...FONT_GOLD, fontSize: '20px' })
       .setOrigin(0, 0.5);
     this.timerText = this.add.text(W / 2, 26, '⏱ 5:00', {
       ...FONT_GOLD, fontSize: '22px',
-      backgroundColor: '#1a1200', padding: { x: 14, y: 4 },
+      backgroundColor: '#5a2800', padding: { x: 14, y: 4 },
     }).setOrigin(0.5, 0.5);
     this.progressText = this.add.text(W * 0.72, 26, '👥 0/8', {
       ...FONT_GREY, fontSize: '18px',

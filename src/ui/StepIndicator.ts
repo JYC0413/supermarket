@@ -1,5 +1,6 @@
 // src/ui/StepIndicator.ts
 import Phaser from 'phaser';
+import { FONT, COLORS, COLOR_STR } from './UITheme';
 
 type Step = 'reading' | 'keyword' | 'answer';
 
@@ -24,17 +25,17 @@ export class StepIndicator extends Phaser.GameObjects.Container {
     const cellW = Math.floor(width / 3);
 
     STEP_ORDER.forEach((step, i) => {
-      const bg = scene.add.rectangle(i * cellW, 0, cellW - 1, 46, 0x1a120a)
+      const bg = scene.add.rectangle(i * cellW, 0, cellW - 1, 46, COLORS.bgWarm)
         .setOrigin(0, 0).setStrokeStyle(1, 0x3a2a18);
       const label = scene.add.text(i * cellW + cellW / 2, 23, STEP_LABELS[step], {
-        fontFamily: '"Courier New", monospace', fontSize: '19px', color: '#444',
+        ...FONT, fontSize: '19px', color: COLOR_STR.inkLight,
       }).setOrigin(0.5, 0.5);
       this.cells.set(step, { bg, label });
       this.add([bg, label]);
     });
 
     this.bonusText = scene.add.text(width - 6, 23, '', {
-      fontFamily: '"Courier New", monospace', fontSize: '18px', color: '#ffd060',
+      ...FONT, fontSize: '18px', color: COLOR_STR.gold,
     }).setOrigin(1, 0.5);
     this.add(this.bonusText);
   }
@@ -44,14 +45,14 @@ export class StepIndicator extends Phaser.GameObjects.Container {
     STEP_ORDER.forEach((step, i) => {
       const { bg, label } = this.cells.get(step)!;
       if (i < activeIdx) {
-        bg.setFillStyle(0x0a1a0a);
-        label.setColor('#5fcf6f').setText(STEP_LABELS[step] + ' ✓');
+        bg.setFillStyle(0xeaf8e0);
+        label.setColor(COLOR_STR.green).setText(STEP_LABELS[step] + ' ✓');
       } else if (i === activeIdx) {
-        bg.setFillStyle(0x1a1400);
-        label.setColor('#ffd060').setText(STEP_LABELS[step] + ' ✏');
+        bg.setFillStyle(COLORS.goldNum);
+        label.setColor(COLOR_STR.gold).setText(STEP_LABELS[step] + ' ✏');
       } else {
-        bg.setFillStyle(0x0d0d18);
-        label.setColor('#444').setText(STEP_LABELS[step]);
+        bg.setFillStyle(COLORS.bgWarm);
+        label.setColor(COLOR_STR.inkLight).setText(STEP_LABELS[step]);
       }
     });
     if (completedBonus !== undefined && completedBonus > 0) {

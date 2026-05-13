@@ -2,7 +2,7 @@
 import Phaser from 'phaser';
 import type { Question, TextChunk } from '../logic/types';
 import { KeywordValidator } from '../logic/KeywordValidator';
-import { FONT, FONT_GOLD, FONT_GREY } from '../config';
+import { FONT, FONT_GOLD, FONT_GREY, COLORS } from './UITheme';
 
 const CHUNK_PAD_X = 12;
 const CHUNK_PAD_Y = 12;
@@ -18,8 +18,8 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, x: number, y: number, width: number) {
     super(scene, x, y);
-    this.bgRect = scene.add.rectangle(0, 0, width, 260, 0x1a120a)
-      .setOrigin(0, 0).setStrokeStyle(1, 0x3a2a18);
+    this.bgRect = scene.add.rectangle(0, 0, width, 260, COLORS.parchmentTop)
+      .setOrigin(0, 0).setStrokeStyle(1, COLORS.woodDark);
     this.add(this.bgRect);
     scene.add.existing(this);
   }
@@ -76,9 +76,9 @@ export class DialogueBox extends Phaser.GameObjects.Container {
     label.setY((h - label.height) / 2);
 
     const bg = scene.add.rectangle(0, 0, w, h,
-      chk.clickable ? 0x181818 : 0x101008)
+      chk.clickable ? COLORS.bgWarm : 0xf5edd8)
       .setOrigin(0, 0)
-      .setStrokeStyle(1, chk.clickable ? 0x333344 : 0x1a1a10);
+      .setStrokeStyle(1, chk.clickable ? 0xd4b870 : 0xe8d8a0);
 
     const container = scene.add.container(0, 0, [bg, label]);
     (container as unknown as { chunkWidth: number }).chunkWidth = w;
@@ -99,7 +99,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
     if (KeywordValidator.isValidKeyword(this.question, chk.id)) {
       this.circledIds.push(chk.id);
-      bg.setFillStyle(0x2a1a00).setStrokeStyle(2, 0xc89020);
+      bg.setFillStyle(COLORS.keywordBg).setStrokeStyle(2, 0xc89020);
       label.setStyle({ ...FONT_GOLD, fontSize: FONT_SIZE });
       this.scene.events.emit('keyword_circled', chk.id);
       if (KeywordValidator.allCircled(this.question, this.circledIds)) {

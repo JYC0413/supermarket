@@ -1,6 +1,6 @@
 // src/ui/NumPad.ts
 import Phaser from 'phaser';
-import { FONT } from '../config';
+import { FONT, FONT_WARM, COLORS, COLOR_STR } from './UITheme';
 
 const KEY_LAYOUT = [
   ['7', '8', '9'],
@@ -30,17 +30,17 @@ export class NumPad extends Phaser.GameObjects.Container {
   private buildDisplay(): void {
     const totalW = KEY_W * 3 + GAP * 2;
     // 显示框内上半部分显示提示文字，下半部分显示答案
-    const bg = this.scene.add.rectangle(0, 0, totalW, 86, 0x1a120a)
-      .setOrigin(0, 0).setStrokeStyle(2, 0x5a4030);
+    const bg = this.scene.add.rectangle(0, 0, totalW, 86, COLORS.displayBg)
+      .setOrigin(0, 0).setStrokeStyle(2, COLORS.displayBorder);
     // 提示文字：显示框内顶部（不再浮出容器外）
     this.promptText = this.scene.add.text(8, 7, '', {
-      ...FONT, fontSize: '16px', color: '#c8a070',
+      ...FONT_WARM, fontSize: '16px', color: COLOR_STR.inkMid,
     });
     // 分隔线
-    const line = this.scene.add.rectangle(0, 32, totalW, 1, 0x5a4030).setOrigin(0, 0);
+    const line = this.scene.add.rectangle(0, 32, totalW, 1, COLORS.displayBorder).setOrigin(0, 0);
     // 答案输入：显示框内下半部分
     this.displayText = this.scene.add.text(8, 38, '_', {
-      ...FONT, fontSize: '34px', color: '#ffffff',
+      ...FONT, fontSize: '34px', color: COLOR_STR.warmWhite,
     });
     this.add([bg, line, this.promptText, this.displayText]);
   }
@@ -56,9 +56,9 @@ export class NumPad extends Phaser.GameObjects.Container {
         const ky = 94 + ri * (KEY_H + GAP);
 
         const isDelete = key === '⌫';
-        const bgColor = isDelete ? 0x2a1a1a : 0x1a1a2e;
-        const borderColor = isDelete ? 0x4a2a2a : 0x2a2a4a;
-        const labelColor = isDelete ? '#cf6f6f' : '#9f9fff';
+        const bgColor = isDelete ? 0xf0c8b0 : COLORS.bgWarm;
+        const borderColor = isDelete ? 0xc07050 : 0xc8a060;
+        const labelColor = isDelete ? COLOR_STR.red : COLOR_STR.inkDark;
 
         const bg = this.scene.add.rectangle(kx, ky, w, KEY_H, bgColor)
           .setOrigin(0, 0).setStrokeStyle(2, borderColor)
@@ -79,11 +79,11 @@ export class NumPad extends Phaser.GameObjects.Container {
   private buildConfirmButton(): void {
     const totalW = KEY_W * 3 + GAP * 2;
     const ky = 94 + 4 * (KEY_H + GAP);
-    const confirmBg = this.scene.add.rectangle(0, ky, totalW, KEY_H, 0x1a3a1a)
-      .setOrigin(0, 0).setStrokeStyle(2, 0x3a6a3a)
+    const confirmBg = this.scene.add.rectangle(0, ky, totalW, KEY_H, COLORS.green)
+      .setOrigin(0, 0).setStrokeStyle(2, 0x3a6010)
       .setInteractive({ useHandCursor: true });
     const confirmLabel = this.scene.add.text(totalW / 2, ky + KEY_H / 2, '✓ 确认', {
-      ...FONT, color: '#6fcf6f', fontSize: '24px',
+      ...FONT, color: '#1a4000', fontSize: '24px',
     }).setOrigin(0.5, 0.5);
     confirmBg.on('pointerup', () => { if (!this._locked) this.confirmCurrentValue(); });
     this.add([confirmBg, confirmLabel]);
