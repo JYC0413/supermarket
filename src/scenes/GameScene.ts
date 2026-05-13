@@ -194,8 +194,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private endRound(): void {
-    this.streakContainer?.destroy();
-    this.streakContainer = undefined;
+    if (this.streakContainer) {
+      this.streakContainer.each((child: Phaser.GameObjects.GameObject) => {
+        this.tweens.killTweensOf(child);
+      });
+      this.streakContainer.destroy();
+      this.streakContainer = undefined;
+    }
     this.roundActive = false;
     const roundEarned = this.score.turnTotal;
     this.score.finalizeRound();
@@ -311,8 +316,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateStreakFire(streak: number): void {
-    this.streakContainer?.destroy();
-    this.streakContainer = undefined;
+    if (this.streakContainer) {
+      this.streakContainer.each((child: Phaser.GameObjects.GameObject) => {
+        this.tweens.killTweensOf(child);
+      });
+      this.streakContainer.destroy();
+      this.streakContainer = undefined;
+    }
 
     if (streak < 3) return;
 

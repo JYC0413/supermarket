@@ -38,7 +38,7 @@ export class NumPad extends Phaser.GameObjects.Container {
 
   private calcTotalHeight(): number {
     const inner = SPACING.borderThick + SPACING.panelPad;
-    return inner * 2 + 86 + GAP + (KEY_H + GAP) * 5 + KEY_H;
+    return inner * 2 + 86 + GAP + (KEY_H + GAP) * 4 + KEY_H;
   }
 
   private buildDisplay(x: number, y: number, w: number): void {
