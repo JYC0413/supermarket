@@ -6,6 +6,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
     "outDir": "dist",
     "types": ["vite/client"]
   },
