@@ -3,13 +3,16 @@ import Phaser from 'phaser';
 
 const SCALE = 6; // 16px tile → 96px display
 
+// 顾客向左走（朝收银员方向），用 LEFT-facing 帧
+// 每组：idle 帧 + 2 个行走帧
+// 角色 1 LEFT=47-49, 角色 2 LEFT=147-149, 角色 3 LEFT=247-249
 const CUSTOMER_TYPES = [
-  { idle: 47, walk: [48, 49] },
-  { idle: 72, walk: [73, 74] },
-  { idle: 97, walk: [98, 99] },
-  { idle: 122, walk: [123, 124] },
+  { idle: 47,  walk: [48,  49]  },  // 棕发女，左朝向
+  { idle: 147, walk: [148, 149] },  // 红衣角色，左朝向
+  { idle: 247, walk: [248, 249] },  // 金色角色，左朝向
+  { idle: 47,  walk: [48,  49]  },  // 同 0，增加出现概率
   { idle: 147, walk: [148, 149] },
-  { idle: 172, walk: [173, 174] },
+  { idle: 247, walk: [248, 249] },
 ] as const;
 
 const EMOTE = { idle: 0, happy: 2, angry: 7 } as const;

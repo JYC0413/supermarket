@@ -4,8 +4,11 @@ import type { Question, TextChunk } from '../logic/types';
 import { KeywordValidator } from '../logic/KeywordValidator';
 import { FONT, FONT_GOLD, FONT_GREY } from '../config';
 
-const CHUNK_PAD_X = 10;
-const CHUNK_PAD_Y = 10;
+const CHUNK_PAD_X = 12;
+const CHUNK_PAD_Y = 12;
+const FONT_SIZE   = '26px';
+// Minimum chunk height: ensures CJK glyphs never get clipped
+const MIN_CHUNK_H = 56;
 
 export class DialogueBox extends Phaser.GameObjects.Container {
   private circledIds: string[] = [];
@@ -14,7 +17,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
   constructor(scene: Phaser.Scene, x: number, y: number, width: number) {
     super(scene, x, y);
-    this.bgRect = scene.add.rectangle(0, 0, width, 240, 0x1a120a)
+    this.bgRect = scene.add.rectangle(0, 0, width, 260, 0x1a120a)
       .setOrigin(0, 0).setStrokeStyle(1, 0x3a2a18);
     this.add(this.bgRect);
     scene.add.existing(this);
@@ -23,31 +26,40 @@ export class DialogueBox extends Phaser.GameObjects.Container {
   load(question: Question): void {
     this.question = question;
     this.circledIds = [];
-    // Remove all children except background
     while (this.list.length > 1) {
       (this.list[1] as Phaser.GameObjects.GameObject).destroy();
     }
 
+    // Hard-question badge at top of box (not above it)
+    let startY = 20;
+    if (question.isHard) {
+      const badge = this.scene.add.text(14, 14, '⚡ 超难题！', {
+        ...FONT, color: '#ffd060', fontSize: '20px',
+        backgroundColor: '#1a1200', padding: { x: 8, y: 4 },
+      });
+      this.add(badge);
+      startY = 66;
+    }
+
     let cursorX = 14;
-    let cursorY = 22;
-    const maxWidth = this.bgRect.width * 0.95;
+    let cursorY = startY;
+    const maxWidth = this.bgRect.width * 0.97;
 
     for (const chk of question.chunks) {
       const chunkContainer = this.buildChunk(chk);
       const chunkWidth = (chunkContainer as unknown as { chunkWidth: number }).chunkWidth;
 
-      if (cursorX + chunkWidth > maxWidth && cursorX > 10) {
-        cursorX = 10;
-        cursorY += 62;
+      if (cursorX + chunkWidth > maxWidth && cursorX > 14) {
+        cursorX = 14;
+        cursorY += 68;
       }
 
       chunkContainer.setPosition(cursorX, cursorY);
       this.add(chunkContainer);
-      cursorX += chunkWidth + 3;
+      cursorX += chunkWidth + 4;
     }
 
-    // Resize bg to fit content
-    const newHeight = Math.max(80, cursorY + 40);
+    const newHeight = Math.max(100, cursorY + 70);
     this.bgRect.setSize(this.bgRect.width, newHeight);
   }
 
@@ -55,25 +67,23 @@ export class DialogueBox extends Phaser.GameObjects.Container {
     const scene = this.scene;
     const style = chk.clickable ? FONT : FONT_GREY;
     const label = scene.add.text(CHUNK_PAD_X, CHUNK_PAD_Y, chk.text, {
-      ...style, fontSize: '26px',
+      ...style, fontSize: FONT_SIZE,
     });
     const w = label.width + CHUNK_PAD_X * 2;
-    const h = label.height + CHUNK_PAD_Y * 2;
+    const h = Math.max(label.height + CHUNK_PAD_Y * 2 + 6, MIN_CHUNK_H);
 
     const bg = scene.add.rectangle(0, 0, w, h,
-      chk.clickable ? 0x111122 : 0x0a0a14)
+      chk.clickable ? 0x181818 : 0x101008)
       .setOrigin(0, 0)
-      .setStrokeStyle(1, chk.clickable ? 0x2a2a3a : 0x111111);
+      .setStrokeStyle(1, chk.clickable ? 0x333344 : 0x1a1a10);
 
     const container = scene.add.container(0, 0, [bg, label]);
-    // Store width for cursor arithmetic
     (container as unknown as { chunkWidth: number }).chunkWidth = w;
 
     if (chk.clickable) {
       bg.setInteractive({ useHandCursor: true })
         .on('pointerup', () => this.onChunkTap(chk, bg, label));
     }
-
     return container;
   }
 
@@ -87,14 +97,12 @@ export class DialogueBox extends Phaser.GameObjects.Container {
     if (KeywordValidator.isValidKeyword(this.question, chk.id)) {
       this.circledIds.push(chk.id);
       bg.setFillStyle(0x2a1a00).setStrokeStyle(2, 0xc89020);
-      label.setStyle({ ...FONT_GOLD, fontSize: '26px' });
+      label.setStyle({ ...FONT_GOLD, fontSize: FONT_SIZE });
       this.scene.events.emit('keyword_circled', chk.id);
-
       if (KeywordValidator.allCircled(this.question, this.circledIds)) {
         this.scene.events.emit('all_keywords_done');
       }
     } else {
-      // Shake feedback, no penalty
       this.scene.tweens.add({
         targets: bg,
         x: { from: -3, to: 3 },
@@ -104,11 +112,6 @@ export class DialogueBox extends Phaser.GameObjects.Container {
     }
   }
 
-  showHardBadge(): void {
-    const badge = this.scene.add.text(4, -38, '⚡ 超难题！', {
-      ...FONT, color: '#ffd060', fontSize: '20px',
-      backgroundColor: '#1a1200', padding: { x: 8, y: 4 },
-    });
-    this.add(badge);
-  }
+  // Kept for API compatibility but now handled inside load()
+  showHardBadge(): void { /* badge is now set in load() */ }
 }

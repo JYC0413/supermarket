@@ -51,10 +51,11 @@ export class GameScene extends Phaser.Scene {
     // 场景底线分隔条
     this.add.rectangle(0, H * 0.52, W, 4, 0x5a3a10).setOrigin(0, 0);
 
-    this.patienceBar    = new PatienceBar(this, 16, H * 0.535, W - 32);
-    this.stepIndicator  = new StepIndicator(this, 0, H * 0.585, W);
-    this.dialogueBox    = new DialogueBox(this, 0, H * 0.655, W * 0.595);
-    this.numPad         = new NumPad(this, W * 0.615, H * 0.648);
+    this.patienceBar    = new PatienceBar(this, 20, H * 0.535, W - 40);
+    this.stepIndicator  = new StepIndicator(this, 0, H * 0.575, W);
+    // 对话框：从 W*0.03 开始（留左边距），宽 W*0.56，数字盘在右侧
+    this.dialogueBox    = new DialogueBox(this, W * 0.03, H * 0.625, W * 0.56);
+    this.numPad         = new NumPad(this, W * 0.637, H * 0.620);
     this.numPad.setLocked(true);
 
     this.events.on('keyword_circled', (_id: string) => this.onKeywordCircled());
@@ -109,7 +110,7 @@ export class GameScene extends Phaser.Scene {
 
   private onKeywordCircled(): void {
     this.score.stageKeywordBonus();
-    this.showFloat(this.scale.width * 0.58, this.scale.height * 0.655, '+¥8', '#ffd060');
+    this.showFloat(this.scale.width * 0.57, this.scale.height * 0.625, '+¥8', '#ffd060');
   }
 
   private unlockAnswer(): void {
