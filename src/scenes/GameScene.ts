@@ -14,6 +14,8 @@ import { COLORS, FONT, FONT_GOLD, FONT_GREEN, FONT_GREY, COLOR_STR } from '../ui
 import type { Question, GameSettings } from '../logic/types';
 
 export class GameScene extends Phaser.Scene {
+  private static readonly CASH_FRAME = 5; // emote_cash in pixel_style1.png spritesheet; verify visually
+
   private settings: GameSettings = { ...DEFAULT_SETTINGS };
   private bank = new QuestionBank();
   private score!: ScoreManager;
@@ -145,6 +147,7 @@ export class GameScene extends Phaser.Scene {
     // All slots answered correctly
     this.score.onCorrectAnswer();
     this.customer.setMood('happy');
+    this.flyCoins(this.scale.width * 0.65, this.scale.height * 0.38);
     this.showFloat(
       this.scale.width * 0.5, this.scale.height * 0.35,
       `¥${this.score.turnTotal}`, '#6fcf6f',
@@ -272,6 +275,31 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: t, y: y - 50, alpha: 0, duration: 1000,
       onComplete: () => t.destroy(),
+    });
+  }
+
+  private flyCoins(fromX: number, fromY: number): void {
+    const hudCoinX = 60;
+    const hudCoinY = 26;
+
+    const offsets = [
+      { dx: -12, dy: 0  },
+      { dx:   0, dy: -8 },
+      { dx:  12, dy: 4  },
+    ];
+
+    offsets.forEach(({ dx, dy }, i) => {
+      const coin = this.add.image(fromX + dx, fromY + dy, 'emotes', GameScene.CASH_FRAME)
+        .setScale(3);
+      this.tweens.add({
+        targets: coin,
+        x: hudCoinX, y: hudCoinY,
+        scale: 1,
+        delay: i * 100,
+        duration: 550,
+        ease: 'Quad.easeIn',
+        onComplete: () => coin.destroy(),
+      });
     });
   }
 
