@@ -37,6 +37,7 @@ export class GameScene extends Phaser.Scene {
   private patienceBar!: PatienceBar;
   private stepIndicator!: StepIndicator;
   private customer!: CustomerSprite;
+  private streakContainer?: Phaser.GameObjects.Container;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -146,6 +147,7 @@ export class GameScene extends Phaser.Scene {
     }
     // All slots answered correctly
     this.score.onCorrectAnswer();
+    this.updateStreakFire(this.score.streak);
     this.customer.setMood('happy');
     this.flyCoins(this.scale.width * 0.65, this.scale.height * 0.38);
     this.showFloat(
@@ -195,6 +197,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private endRound(): void {
+    this.streakContainer?.destroy();
+    this.streakContainer = undefined;
     this.roundActive = false;
     const roundEarned = this.score.turnTotal;
     this.score.finalizeRound();
@@ -275,6 +279,51 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: t, y: y - 50, alpha: 0, duration: 1000,
       onComplete: () => t.destroy(),
+    });
+  }
+
+  private updateStreakFire(streak: number): void {
+    this.streakContainer?.destroy();
+    this.streakContainer = undefined;
+
+    if (streak < 3) return;
+
+    const is5 = streak >= 5;
+    const x = this.scale.width - 80;
+    const y = this.scale.height * 0.60;
+
+    this.streakContainer = this.add.container(x, y);
+
+    const count = is5 ? 3 : 1;
+    const size  = is5 ? 3.5 : 2.5;
+    // emote frame: anger=7 (small flame), star=13 (large)
+    const FLAME_FRAME = is5 ? 13 : 7;
+
+    for (let i = 0; i < count; i++) {
+      const flame = this.add.image((i - (count - 1) / 2) * 20, 0, 'emotes', FLAME_FRAME)
+        .setScale(size);
+      this.streakContainer.add(flame);
+
+      this.tweens.add({
+        targets: flame,
+        scaleY: size * 1.12,
+        scaleX: size * 0.92,
+        yoyo: true, repeat: -1,
+        duration: 280 + i * 40,
+        ease: 'Sine.easeInOut',
+      });
+    }
+
+    const label = this.add.text(0, -28,
+      is5 ? '5连胜！！' : '3连胜！',
+      { ...FONT_GOLD, fontSize: is5 ? '20px' : '17px' },
+    ).setOrigin(0.5);
+    this.streakContainer.add(label);
+
+    this.streakContainer.setScale(0.3);
+    this.tweens.add({
+      targets: this.streakContainer,
+      scale: 1, duration: 350, ease: 'Back.easeOut',
     });
   }
 
