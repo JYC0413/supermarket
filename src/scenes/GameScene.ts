@@ -377,7 +377,7 @@ export class GameScene extends Phaser.Scene {
     const is5 = streak >= 5;
     // 收银员在 W*0.40，连胜标记出现在他头顶偏右
     const x = this.scale.width * 0.44;
-    const y = this.scale.height * 0.27;
+    const y = this.scale.height * 0.35; // 地板区，货架(y=256)下方，柜台(y≈502)上方
 
     this.streakContainer = this.add.container(x, y);
 
@@ -507,8 +507,9 @@ export class GameScene extends Phaser.Scene {
     // ── 3. 收银员（先于柜台画，柜台会盖住下半身）────────
     this.add.image(W * 0.40, counterY, 'urban', 22).setScale(S).setOrigin(0.5, 1);
 
-    // ── 4. 收银台（画在收银员之后，遮住下半身）───────────
+    // ── 4. 收银台（depth=1，遮住收银员和顾客的下半身）──────
     const gCounter = this.add.graphics();
+    gCounter.setDepth(1); // 渲染在角色（depth=0）前面，遮住腿部
     // 台面
     gCounter.fillStyle(0xc4863c);
     gCounter.fillRect(counterX, counterY - counterTopH, counterW, counterTopH);
