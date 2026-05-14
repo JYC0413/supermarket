@@ -48,7 +48,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
 
     // "顾客说：" 标签
     const speakerLabel = this.scene.add.text(innerX, startY, '💬 顾客说：', {
-      ...FONT_GREY, fontSize: '14px',
+      ...FONT_GREY, fontSize: '22px',
     });
     this.add(speakerLabel);
     startY += 26;
@@ -72,7 +72,7 @@ export class DialogueBox extends Phaser.GameObjects.Container {
       cursorX += chunkW + 3;
     }
 
-    const totalH = Math.max(120, cursorY - bt - SPACING.panelPad + FIXED_CHUNK_H + bt + SPACING.panelPad + 8);
+    const totalH = Math.max(390, cursorY - bt - SPACING.panelPad + FIXED_CHUNK_H + bt + SPACING.panelPad + 8);
     this.boxH = totalH;
     this.redrawFrame();
   }

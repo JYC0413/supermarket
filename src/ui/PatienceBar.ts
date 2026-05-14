@@ -18,10 +18,10 @@ export class PatienceBar extends Phaser.GameObjects.Container {
     // 底边分隔线
     const sep = scene.add.rectangle(0, 16, width, 2, 0xd4b870).setOrigin(0, 0.5);
 
-    this.emoji = scene.add.text(6, 0, '😊', { fontSize: '22px' }).setOrigin(0, 0.5);
-    const label = scene.add.text(34, 0, '顾客耐心', { ...FONT_GREY, fontSize: '16px' }).setOrigin(0, 0.5);
+    this.emoji = scene.add.text(6, 0, '😊', { fontSize: '28px' }).setOrigin(0, 0.5);
+    const label = scene.add.text(42, 0, '顾客耐心', { ...FONT_GREY, fontSize: '26px' }).setOrigin(0, 0.5);
 
-    const trackX = 120;
+    const trackX = 160;
     this.trackW = width - trackX - 8;
 
     // 凹陷感轨道

@@ -10,7 +10,7 @@ const STEP_LABELS: Record<Step, string> = {
   answer:  '③ 答题',
 };
 const STEP_ORDER: Step[] = ['reading', 'keyword', 'answer'];
-const CELL_H = 44;
+const CELL_H = 54;
 
 export class StepIndicator extends Phaser.GameObjects.Container {
   private cells = new Map<Step, {
@@ -35,14 +35,14 @@ export class StepIndicator extends Phaser.GameObjects.Container {
       const bg = scene.add.rectangle(i * cellW, 0, cellW - 1, CELL_H, 0xf5e8cc)
         .setOrigin(0, 0);
       const label = scene.add.text(i * cellW + cellW / 2, CELL_H / 2, STEP_LABELS[step], {
-        ...FONT, fontSize: '17px', color: COLOR_STR.inkLight,
+        ...FONT, fontSize: '22px', color: COLOR_STR.inkLight,
       }).setOrigin(0.5, 0.5);
       this.cells.set(step, { bg, label });
       this.add([bg, label]);
     });
 
     this.bonusText = scene.add.text(width - 8, CELL_H / 2, '', {
-      ...FONT, fontSize: '16px', color: COLOR_STR.gold,
+      ...FONT, fontSize: '22px', color: COLOR_STR.gold,
     }).setOrigin(1, 0.5);
     this.add(this.bonusText);
   }

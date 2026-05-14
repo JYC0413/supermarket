@@ -58,8 +58,8 @@ export class GameScene extends Phaser.Scene {
     this.patienceBar    = new PatienceBar(this, 20, H * 0.535, W - 40);
     this.stepIndicator  = new StepIndicator(this, 0, H * 0.583, W);
     // 对话框：从 W*0.03 开始（留左边距），宽 W*0.56，数字盘在右侧
-    this.dialogueBox    = new DialogueBox(this, W * 0.03, H * 0.638, W * 0.56);
-    this.numPad         = new NumPad(this, W * 0.637, H * 0.633);
+    this.dialogueBox    = new DialogueBox(this, W * 0.03, H * 0.633, W * 0.59);
+    this.numPad         = new NumPad(this, W * 0.650, H * 0.633);
     this.numPad.setLocked(true);
 
     this.events.on('keyword_circled', (_id: string) => this.onKeywordCircled());
@@ -105,7 +105,7 @@ export class GameScene extends Phaser.Scene {
     const W = this.scale.width;
     const H = this.scale.height;
     this.customer = new CustomerSprite(this, W * 0.85, H * 0.48);
-    this.customer.walkIn(W * 0.65, () => {
+    this.customer.walkIn(W * 0.60, () => {
       this.dialogueBox.load(q);
       if (q.isHard) this.dialogueBox.showHardBadge();
       this.stepIndicator.setStep('keyword');
@@ -474,7 +474,7 @@ export class GameScene extends Phaser.Scene {
     gCounter.lineStyle(2, 0xb07030);
     gCounter.strokeRect(counterX, counterY - counterTopH, counterW, counterTopH + counterH);
     // 收银机
-    const regX = counterX + counterW - 140;
+    const regX = counterX + 60;
     const regY = counterY - counterTopH - 54;
     gCounter.fillStyle(0x55514e);
     gCounter.fillRect(regX, regY, 80, 54);
