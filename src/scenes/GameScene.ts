@@ -11,6 +11,7 @@ import { StepIndicator } from '../ui/StepIndicator';
 import { CustomerSprite } from '../ui/CustomerSprite';
 import { DEFAULT_SETTINGS } from '../config';
 import { COLORS, FONT, FONT_GOLD, FONT_GREEN, FONT_GREY, COLOR_STR } from '../ui/UITheme';
+import { AudioManager } from '../audio/AudioManager';
 import type { Question, GameSettings } from '../logic/types';
 
 export class GameScene extends Phaser.Scene {
@@ -38,6 +39,7 @@ export class GameScene extends Phaser.Scene {
   private stepIndicator!: StepIndicator;
   private customer!: CustomerSprite;
   private streakContainer?: Phaser.GameObjects.Container;
+  private audio!: AudioManager;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -68,6 +70,7 @@ export class GameScene extends Phaser.Scene {
 
     this.score = new ScoreManager();
     this.patience = new PatienceMeter();
+    this.audio = new AudioManager(this);
 
     this.scene.launch('HUDScene');
     this.startRound();
@@ -114,6 +117,7 @@ export class GameScene extends Phaser.Scene {
 
   private onKeywordCircled(): void {
     this.score.stageKeywordBonus();
+    this.audio.play('keyword_circle');
     this.showFloat(this.scale.width * 0.57, this.scale.height * 0.625, '+¥8', '#ffd060');
   }
 
@@ -147,12 +151,16 @@ export class GameScene extends Phaser.Scene {
     }
     // All slots answered correctly
     this.score.onCorrectAnswer();
-    this.updateStreakFire(this.score.streak);
+    this.audio.play('correct');
+    const streak = this.score.streak;
+    this.updateStreakFire(streak);
+    if (streak >= 5) this.spawnConfetti(this.scale.width / 2, this.scale.height * 0.4, 80);
     this.customer.setMood('happy');
     this.flyCoins(this.scale.width * 0.65, this.scale.height * 0.38);
     this.showCorrectBadge(this.score.turnTotal);
     this.time.delayedCall(700, () => {
       if (!this.roundActive) return;
+      this.audio.play('customer_happy');
       this.customer.walkOut(() => {
         this.currentQuestionIdx++;
         this.nextCustomer();
@@ -166,6 +174,7 @@ export class GameScene extends Phaser.Scene {
     this.patience.onWrongAnswer(this.wrongAttempts);
     this.patienceBar.update(this.patience.value);
     this.patienceBar.flashRed();
+    this.audio.play('wrong');
     this.customer.setMood('angry');
     this.numPad.reset();
     this.cameras.main.shake(140, 0.007);
@@ -181,6 +190,7 @@ export class GameScene extends Phaser.Scene {
     if (this.customerExiting) return;
     this.customerExiting = true;
     this.score.onCustomerLeft();
+    this.audio.play('customer_angry');
     this.numPad.setLocked(true);
     this.customer.walkOut(() => {
       this.currentQuestionIdx++;
@@ -202,6 +212,8 @@ export class GameScene extends Phaser.Scene {
       this.streakContainer = undefined;
     }
     this.roundActive = false;
+    this.audio.play('round_complete');
+    this.spawnConfetti(this.scale.width / 2, this.scale.height * 0.3, 60);
     const roundEarned = this.score.turnTotal;
     this.score.finalizeRound();
 
@@ -305,6 +317,30 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  private spawnConfetti(cx: number, cy: number, count = 50): void {
+    const cols = [
+      0xff6b6b, 0xfeca57, 0x48dbfb, 0xff9ff3,
+      0x54a0ff, 0xa8e87a, 0xffd060, 0xff8c00,
+    ];
+    for (let i = 0; i < count; i++) {
+      const x = cx + (Math.random() - 0.5) * this.scale.width * 0.7;
+      const g = this.add.graphics();
+      g.fillStyle(cols[Math.floor(Math.random() * cols.length)]);
+      g.fillRect(0, 0, 10 + Math.random() * 12, 7 + Math.random() * 9);
+      g.setPosition(x, cy - 40).setDepth(200);
+      this.tweens.add({
+        targets: g,
+        x: x + (Math.random() - 0.5) * 320,
+        y: cy + this.scale.height * 0.6 + Math.random() * 200,
+        rotation: Math.PI * 4 * (Math.random() > 0.5 ? 1 : -1),
+        duration: 1400 + Math.random() * 800,
+        delay: Math.random() * 350,
+        ease: 'Quad.easeIn',
+        onComplete: () => g.destroy(),
+      });
+    }
+  }
+
   private showFloat(x: number, y: number, text: string, color: string): void {
     const t = this.add.text(x, y, text, {
       fontFamily: FONT.fontFamily, fontSize: '18px', color,
@@ -325,6 +361,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (streak < 3) return;
+
+    if (streak >= 5) this.audio.play('streak_5');
+    else this.audio.play('streak_3');
 
     const is5 = streak >= 5;
     const x = this.scale.width - 80;
@@ -365,6 +404,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private flyCoins(fromX: number, fromY: number): void {
+    this.audio.play('coins');
     const hudCoinX = 60;
     const hudCoinY = 26;
 

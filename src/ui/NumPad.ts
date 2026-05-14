@@ -152,6 +152,7 @@ export class NumPad extends Phaser.GameObjects.Container {
   }
 
   private handleKey(key: string): void {
+    this.scene.sound.play('key_press', { volume: 0.35 });
     if (key === '⌫') {
       this._value = this._value.slice(0, -1);
     } else if (key === '✓ 确认') {
