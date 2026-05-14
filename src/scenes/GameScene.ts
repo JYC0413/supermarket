@@ -332,29 +332,28 @@ export class GameScene extends Phaser.Scene {
 
     this.streakContainer = this.add.container(x, y);
 
-    const count = is5 ? 3 : 1;
-    const size  = is5 ? 3.5 : 2.5;
-    // emote frame: anger=7 (small flame), star=13 (large)
-    const FLAME_FRAME = is5 ? 13 : 7;
+    const count    = is5 ? 3 : 1;
+    const fontSize = is5 ? '72px' : '56px';
 
     for (let i = 0; i < count; i++) {
-      const flame = this.add.image((i - (count - 1) / 2) * 20, 0, 'emotes', FLAME_FRAME)
-        .setScale(size);
+      const flame = this.add.text((i - (count - 1) / 2) * 56, 0, '🔥', { fontSize })
+        .setOrigin(0.5, 1);
       this.streakContainer.add(flame);
 
       this.tweens.add({
         targets: flame,
-        scaleY: size * 1.12,
-        scaleX: size * 0.92,
+        scaleY: 1.15,
+        scaleX: 0.88,
         yoyo: true, repeat: -1,
-        duration: 280 + i * 40,
+        duration: 260 + i * 50,
         ease: 'Sine.easeInOut',
       });
     }
 
-    const label = this.add.text(0, -28,
-      is5 ? '5连胜！！' : '3连胜！',
-      { ...FONT_GOLD, fontSize: is5 ? '20px' : '17px' },
+    const labelSize = is5 ? '32px' : '26px';
+    const label = this.add.text(0, -(is5 ? 80 : 66),
+      is5 ? '🔥 5连胜！！ 🔥' : '🔥 3连胜！',
+      { ...FONT_GOLD, fontSize: labelSize },
     ).setOrigin(0.5);
     this.streakContainer.add(label);
 

@@ -36,14 +36,29 @@ export class DialogueBox extends Phaser.GameObjects.Container {
     const innerX = bt + SPACING.panelPad;
     let startY = bt + SPACING.panelPad;
 
-    // 超难题 badge
+    // 超难题 badge — 大而醒目
     if (question.isHard) {
-      const badge = this.scene.add.text(innerX, startY, '⚡ 超难题！', {
-        ...FONT, fontSize: '18px', color: '#ffc060',
-        backgroundColor: '#5a1a00', padding: { x: 8, y: 4 },
-      });
+      // 背景色块
+      const badgeBg = this.scene.add.graphics();
+      badgeBg.fillStyle(0x7a1a00);
+      badgeBg.fillRoundedRect(innerX, startY, 240, 46, 6);
+      badgeBg.lineStyle(3, 0xff8c00);
+      badgeBg.strokeRoundedRect(innerX, startY, 240, 46, 6);
+      this.add(badgeBg);
+
+      const badge = this.scene.add.text(innerX + 120, startY + 23, '⚡ 超难题！', {
+        ...FONT, fontSize: '28px', color: '#ffe060', fontStyle: 'bold',
+      }).setOrigin(0.5, 0.5);
       this.add(badge);
-      startY += 38;
+
+      // 闪烁 tween
+      this.scene.tweens.add({
+        targets: badge,
+        alpha: { from: 1, to: 0.6 },
+        yoyo: true, repeat: -1, duration: 600, ease: 'Sine.easeInOut',
+      });
+
+      startY += 58;
     }
 
     // "顾客说：" 标签
