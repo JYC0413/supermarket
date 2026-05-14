@@ -66,9 +66,9 @@ export class GameScene extends Phaser.Scene {
     this.numPad         = new NumPad(this, W * 0.650, H * 0.633);
     this.numPad.setLocked(true);
 
-    // 草稿区：数字盘右侧，NumPad 右边缘 ≈ W*0.768，草稿区 W*0.778 → W*0.970
+    // 草稿区：数字盘右侧，间距和左侧对话框↔数字盘保持一致（均为 W*0.030）
     this.scratchPad = new ScratchPad(
-      this, W * 0.778, H * 0.633, W * 0.192, H * 0.367,
+      this, W * 0.798, H * 0.633, W * 0.172, H * 0.367,
     );
 
     this.events.on('keyword_circled', (_id: string) => this.onKeywordCircled());
@@ -375,8 +375,9 @@ export class GameScene extends Phaser.Scene {
     else this.audio.play('streak_3');
 
     const is5 = streak >= 5;
-    const x = this.scale.width - 80;
-    const y = this.scale.height * 0.60;
+    // 收银员在 W*0.40，连胜标记出现在他头顶偏右
+    const x = this.scale.width * 0.44;
+    const y = this.scale.height * 0.27;
 
     this.streakContainer = this.add.container(x, y);
 
