@@ -81,6 +81,7 @@ export class GameScene extends Phaser.Scene {
     this.roundTimer = this.settings.roundDuration;
     this.currentQuestionIdx = 0;
     this.roundActive = true;
+    this.audio.startBgm();
     this.nextCustomer();
   }
 

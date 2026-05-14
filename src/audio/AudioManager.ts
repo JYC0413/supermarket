@@ -13,6 +13,8 @@ export type SoundKey =
   | 'round_complete'
   | 'key_press';
 
+const BGM_VOLUME = 0.12; // 很小，舒缓背景用
+
 const VOLUMES: Record<SoundKey, number> = {
   keyword_circle: 0.55,
   correct:        0.70,
@@ -28,6 +30,7 @@ const VOLUMES: Record<SoundKey, number> = {
 
 export class AudioManager {
   private scene: Phaser.Scene;
+  private bgm?: Phaser.Sound.BaseSound;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -36,6 +39,17 @@ export class AudioManager {
   play(key: SoundKey, extra?: Phaser.Types.Sound.SoundConfig): void {
     const vol = VOLUMES[key];
     this.scene.sound.play(key, { volume: vol, ...extra });
+  }
+
+  startBgm(): void {
+    if (this.bgm) return; // 已在播放
+    this.bgm = this.scene.sound.add('bgm', { loop: true, volume: BGM_VOLUME });
+    this.bgm.play();
+  }
+
+  stopBgm(): void {
+    this.bgm?.stop();
+    this.bgm = undefined;
   }
 
   // Preload helper — call from PreloadScene
@@ -48,5 +62,6 @@ export class AudioManager {
     for (const k of keys) {
       scene.load.audio(k, `assets/sounds/${k}.ogg`);
     }
+    scene.load.audio('bgm', 'assets/sounds/bgm.ogg');
   }
 }
