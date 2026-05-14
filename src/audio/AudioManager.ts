@@ -13,7 +13,9 @@ export type SoundKey =
   | 'round_complete'
   | 'key_press';
 
-const BGM_VOLUME = 0.12; // 很小，舒缓背景用
+const BGM_VOLUME = 0.05; // 极小声，只作背景氛围
+// BGM: "Wallpaper" by Kevin MacLeod (incompetech.com)
+// Licensed under Creative Commons: By Attribution 4.0 — http://creativecommons.org/licenses/by/4.0/
 
 const VOLUMES: Record<SoundKey, number> = {
   keyword_circle: 0.55,
@@ -62,6 +64,6 @@ export class AudioManager {
     for (const k of keys) {
       scene.load.audio(k, `assets/sounds/${k}.ogg`);
     }
-    scene.load.audio('bgm', 'assets/sounds/bgm.ogg');
+    scene.load.audio('bgm', 'assets/sounds/bgm.mp3');
   }
 }

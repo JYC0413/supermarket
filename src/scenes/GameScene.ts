@@ -12,6 +12,7 @@ import { CustomerSprite } from '../ui/CustomerSprite';
 import { DEFAULT_SETTINGS } from '../config';
 import { COLORS, FONT, FONT_GOLD, FONT_GREEN, FONT_GREY, COLOR_STR } from '../ui/UITheme';
 import { AudioManager } from '../audio/AudioManager';
+import { ScratchPad } from '../ui/ScratchPad';
 import type { Question, GameSettings } from '../logic/types';
 
 export class GameScene extends Phaser.Scene {
@@ -40,6 +41,7 @@ export class GameScene extends Phaser.Scene {
   private customer!: CustomerSprite;
   private streakContainer?: Phaser.GameObjects.Container;
   private audio!: AudioManager;
+  private scratchPad!: ScratchPad;
 
   constructor() { super({ key: 'GameScene' }); }
 
@@ -63,6 +65,11 @@ export class GameScene extends Phaser.Scene {
     this.dialogueBox    = new DialogueBox(this, W * 0.03, H * 0.633, W * 0.59);
     this.numPad         = new NumPad(this, W * 0.650, H * 0.633);
     this.numPad.setLocked(true);
+
+    // 草稿区：数字盘右侧，NumPad 右边缘 ≈ W*0.768，草稿区 W*0.778 → W*0.970
+    this.scratchPad = new ScratchPad(
+      this, W * 0.778, H * 0.633, W * 0.192, H * 0.367,
+    );
 
     this.events.on('keyword_circled', (_id: string) => this.onKeywordCircled());
     this.events.on('all_keywords_done', () => this.unlockAnswer());
@@ -152,6 +159,7 @@ export class GameScene extends Phaser.Scene {
     }
     // All slots answered correctly
     this.score.onCorrectAnswer();
+    this.scratchPad.clear();
     this.audio.play('correct');
     const streak = this.score.streak;
     this.updateStreakFire(streak);
@@ -392,7 +400,7 @@ export class GameScene extends Phaser.Scene {
 
     const labelSize = is5 ? '32px' : '26px';
     const label = this.add.text(0, -(is5 ? 80 : 66),
-      is5 ? '🔥 5连胜！！ 🔥' : '🔥 3连胜！',
+      is5 ? `🔥 ${streak}连胜！！ 🔥` : `🔥 ${streak}连胜！`,
       { ...FONT_GOLD, fontSize: labelSize },
     ).setOrigin(0.5);
     this.streakContainer.add(label);
