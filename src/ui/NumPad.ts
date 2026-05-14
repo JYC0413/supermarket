@@ -1,97 +1,163 @@
 // src/ui/NumPad.ts
 import Phaser from 'phaser';
-import { FONT } from '../config';
+import { FONT, FONT_WARM, COLORS, COLOR_STR, SPACING, drawWoodFrame } from './UITheme';
 
+const KEY_W = 62;
+const KEY_H = 50;
+const GAP   = 6;
 const KEY_LAYOUT = [
   ['7', '8', '9'],
   ['4', '5', '6'],
   ['1', '2', '3'],
-  ['0', '', '⌫'],
+  ['0', '',  '⌫'],
 ] as const;
-
-const KEY_W = 66;
-const KEY_H = 52;
-const GAP = 6;
 
 export class NumPad extends Phaser.GameObjects.Container {
   private _value = '';
-  private displayText!: Phaser.GameObjects.Text;
+  private displayValueText!: Phaser.GameObjects.Text;
   private promptText!: Phaser.GameObjects.Text;
   private _locked = false;
+  private frameG!: Phaser.GameObjects.Graphics;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
     scene.add.existing(this);
-    this.buildDisplay();
-    this.buildKeys();
-    this.buildConfirmButton();
+
+    const totalW = KEY_W * 3 + GAP * 2 + SPACING.borderThick * 2 + SPACING.panelPad * 2;
+    const totalH = this.calcTotalHeight();
+
+    this.frameG = scene.add.graphics();
+    drawWoodFrame(this.frameG, 0, 0, totalW, totalH);
+    this.add(this.frameG);
+
+    const inner = SPACING.borderThick + SPACING.panelPad;
+    this.buildDisplay(inner, inner, KEY_W * 3 + GAP * 2);
+    this.buildKeys(inner, inner + 86 + GAP);
+    this.buildConfirmKey(inner, inner + 86 + GAP + (KEY_H + GAP) * 4);
   }
 
-  private buildDisplay(): void {
-    const totalW = KEY_W * 3 + GAP * 2;
-    // 显示框内上半部分显示提示文字，下半部分显示答案
-    const bg = this.scene.add.rectangle(0, 0, totalW, 86, 0x1a120a)
-      .setOrigin(0, 0).setStrokeStyle(2, 0x5a4030);
-    // 提示文字：显示框内顶部（不再浮出容器外）
-    this.promptText = this.scene.add.text(8, 7, '', {
-      ...FONT, fontSize: '16px', color: '#c8a070',
-    });
-    // 分隔线
-    const line = this.scene.add.rectangle(0, 32, totalW, 1, 0x5a4030).setOrigin(0, 0);
-    // 答案输入：显示框内下半部分
-    this.displayText = this.scene.add.text(8, 38, '_', {
-      ...FONT, fontSize: '34px', color: '#ffffff',
-    });
-    this.add([bg, line, this.promptText, this.displayText]);
+  private calcTotalHeight(): number {
+    const inner = SPACING.borderThick + SPACING.panelPad;
+    return inner * 2 + 86 + GAP + (KEY_H + GAP) * 4 + KEY_H;
   }
 
-  private buildKeys(): void {
+  private buildDisplay(x: number, y: number, w: number): void {
+    // 凹陷显示框
+    const bg = this.scene.add.graphics();
+    bg.fillStyle(COLORS.displayBg);
+    bg.fillRect(x, y, w, 80);
+    // 凹陷感：左/上暗，右/下亮
+    bg.lineStyle(2, COLORS.displayBorder);
+    bg.lineBetween(x, y,     x + w, y);
+    bg.lineBetween(x, y,     x,     y + 80);
+    bg.lineStyle(2, 0x8a5030);
+    bg.lineBetween(x, y + 80, x + w, y + 80);
+    bg.lineBetween(x + w, y, x + w, y + 80);
+    this.add(bg);
+
+    this.promptText = this.scene.add.text(x + 8, y + 8, '', {
+      ...FONT, fontSize: '14px', color: COLOR_STR.inkLight,
+    });
+    const divider = this.scene.add.graphics();
+    divider.lineStyle(1, COLORS.displayBorder);
+    divider.lineBetween(x + 4, y + 34, x + w - 4, y + 34);
+
+    this.displayValueText = this.scene.add.text(x + 8, y + 38, '_', {
+      ...FONT_WARM, fontSize: '30px',
+    });
+    this.add([this.promptText, divider, this.displayValueText]);
+  }
+
+  private buildKeys(startX: number, startY: number): void {
     KEY_LAYOUT.forEach((row, ri) => {
       row.forEach((key, ci) => {
-        if (key === '') return; // skip placeholder in '0' row
-
+        if (key === '') return;
         const isWide = key === '0';
-        const w = isWide ? KEY_W * 2 + GAP : KEY_W;
-        const kx = isWide ? 0 : ci * (KEY_W + GAP);
-        const ky = 94 + ri * (KEY_H + GAP);
-
-        const isDelete = key === '⌫';
-        const bgColor = isDelete ? 0x2a1a1a : 0x1a1a2e;
-        const borderColor = isDelete ? 0x4a2a2a : 0x2a2a4a;
-        const labelColor = isDelete ? '#cf6f6f' : '#9f9fff';
-
-        const bg = this.scene.add.rectangle(kx, ky, w, KEY_H, bgColor)
-          .setOrigin(0, 0).setStrokeStyle(2, borderColor)
-          .setInteractive({ useHandCursor: true });
-        const label = this.scene.add.text(kx + w / 2, ky + KEY_H / 2, key, {
-          ...FONT, fontSize: '24px', color: labelColor,
-        }).setOrigin(0.5, 0.5);
-
-        bg.on('pointerover', () => { if (!this._locked) bg.setFillStyle(isDelete ? 0x3a2a2a : 0x2a2a4e); });
-        bg.on('pointerout', () => bg.setFillStyle(bgColor));
-        bg.on('pointerup', () => { if (!this._locked) this.handleKey(key); });
-
-        this.add([bg, label]);
+        const w  = isWide ? KEY_W * 2 + GAP : KEY_W;
+        const kx = isWide ? startX : startX + ci * (KEY_W + GAP);
+        const ky = startY + ri * (KEY_H + GAP);
+        const c  = this.buildKey3D(kx, ky, w, KEY_H, key, key === '⌫', false);
+        this.add(c);
       });
     });
   }
 
-  private buildConfirmButton(): void {
-    const totalW = KEY_W * 3 + GAP * 2;
-    const ky = 94 + 4 * (KEY_H + GAP);
-    const confirmBg = this.scene.add.rectangle(0, ky, totalW, KEY_H, 0x1a3a1a)
-      .setOrigin(0, 0).setStrokeStyle(2, 0x3a6a3a)
-      .setInteractive({ useHandCursor: true });
-    const confirmLabel = this.scene.add.text(totalW / 2, ky + KEY_H / 2, '✓ 确认', {
-      ...FONT, color: '#6fcf6f', fontSize: '24px',
-    }).setOrigin(0.5, 0.5);
-    confirmBg.on('pointerup', () => { if (!this._locked) this.confirmCurrentValue(); });
-    this.add([confirmBg, confirmLabel]);
+  private buildConfirmKey(startX: number, startY: number): void {
+    const w = KEY_W * 3 + GAP * 2;
+    const c = this.buildKey3D(startX, startY, w, KEY_H, '✓ 确认', false, true);
+    this.add(c);
+  }
+
+  private buildKey3D(
+    kx: number, ky: number, w: number, h: number,
+    label: string, isDelete: boolean, isConfirm: boolean,
+  ): Phaser.GameObjects.Container {
+    const container = this.scene.add.container(kx, ky);
+
+    const g = this.scene.add.graphics();
+
+    // 阴影（右下偏移 2px）
+    const shadowColor = isConfirm ? 0x1a3000 : isDelete ? 0x3a1000 : 0x3a1800;
+    g.fillStyle(shadowColor);
+    g.fillRect(2, 2, w, h);
+
+    // 键体
+    const bodyColor = isConfirm ? COLORS.green : isDelete ? 0xc07850 : 0xd4b070;
+    g.fillStyle(bodyColor);
+    g.fillRect(0, 0, w, h);
+
+    // 高光（左上）
+    const hlColor = isConfirm ? COLORS.greenLight : isDelete ? 0xf0c8a8 : COLORS.woodHighlight;
+    g.lineStyle(2, hlColor);
+    g.lineBetween(0, 0, w - 1, 0);
+    g.lineBetween(0, 0, 0, h - 1);
+
+    // 阴影边（右下）
+    const sdColor = isConfirm ? 0x3a6010 : isDelete ? 0x7a3818 : COLORS.woodShadow;
+    g.lineStyle(2, sdColor);
+    g.lineBetween(0, h - 1, w, h - 1);
+    g.lineBetween(w - 1, 0, w - 1, h);
+
+    const textColor = isConfirm ? '#1a4000' : isDelete ? '#5a1800' : COLOR_STR.inkDark;
+    const text = this.scene.add.text(w / 2, h / 2, label, {
+      ...FONT, fontSize: isConfirm ? '20px' : '22px',
+      color: textColor, fontStyle: 'bold',
+    }).setOrigin(0.5);
+
+    container.add([g, text]);
+
+    // 交互
+    g.setInteractive(
+      new Phaser.Geom.Rectangle(0, 0, w, h),
+      Phaser.Geom.Rectangle.Contains,
+    );
+    g.on('pointerover', () => {
+      if (!this._locked) this.scene.game.canvas.style.cursor = 'pointer';
+    });
+    g.on('pointerout', () => {
+      this.scene.game.canvas.style.cursor = 'default';
+      this.scene.tweens.add({ targets: container, y: ky, duration: 60, ease: 'Linear' });
+    });
+    g.on('pointerdown', () => {
+      if (this._locked) return;
+      this.scene.tweens.add({ targets: container, y: ky + 2, duration: 50, ease: 'Linear' });
+    });
+    g.on('pointerup', () => {
+      if (this._locked) return;
+      this.scene.tweens.add({ targets: container, y: ky, duration: 60, ease: 'Linear' });
+      this.handleKey(label);
+    });
+
+    return container;
   }
 
   private handleKey(key: string): void {
+    this.scene.sound.play('key_press', { volume: 0.35 });
     if (key === '⌫') {
       this._value = this._value.slice(0, -1);
+    } else if (key === '✓ 确认') {
+      this.confirmCurrentValue();
+      return;
     } else if (this._value.length < 4) {
       this._value += key;
     }
@@ -116,10 +182,10 @@ export class NumPad extends Phaser.GameObjects.Container {
 
   setLocked(locked: boolean): void {
     this._locked = locked;
-    this.setAlpha(locked ? 0.25 : 1);
+    this.setAlpha(locked ? 0.28 : 1);
   }
 
   private refreshDisplay(): void {
-    this.displayText.setText(this._value.length > 0 ? this._value : '_');
+    this.displayValueText.setText(this._value.length > 0 ? this._value : '_');
   }
 }

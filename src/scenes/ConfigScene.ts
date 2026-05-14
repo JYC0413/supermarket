@@ -1,6 +1,7 @@
 // src/scenes/ConfigScene.ts
 import Phaser from 'phaser';
-import { DEFAULT_SETTINGS, FONT, FONT_GOLD, FONT_GREEN } from '../config';
+import { DEFAULT_SETTINGS } from '../config';
+import { FONT, FONT_GOLD, FONT_GREEN, COLORS } from '../ui/UITheme';
 import type { GameSettings } from '../logic/types';
 
 export class ConfigScene extends Phaser.Scene {
@@ -13,7 +14,7 @@ export class ConfigScene extends Phaser.Scene {
     const H = this.scale.height;
     const cx = W / 2;
 
-    this.add.rectangle(0, 0, W, H, 0x0a0a1a).setOrigin(0, 0);
+    this.add.rectangle(0, 0, W, H, COLORS.hudBgTop).setOrigin(0, 0);
 
     this.add.text(cx, 140, '数学便利店', { ...FONT_GOLD, fontSize: '64px' }).setOrigin(0.5);
     this.add.text(cx, 230, '老师请设置本局参数', { ...FONT, fontSize: '24px', color: '#888' })

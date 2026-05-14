@@ -1,5 +1,6 @@
 // src/scenes/PreloadScene.ts
 import Phaser from 'phaser';
+import { AudioManager } from '../audio/AudioManager';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() { super({ key: 'PreloadScene' }); }
@@ -14,6 +15,7 @@ export class PreloadScene extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
+    AudioManager.preload(this);
   }
 
   create(): void {

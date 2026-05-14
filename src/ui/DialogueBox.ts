@@ -2,119 +2,187 @@
 import Phaser from 'phaser';
 import type { Question, TextChunk } from '../logic/types';
 import { KeywordValidator } from '../logic/KeywordValidator';
-import { FONT, FONT_GOLD, FONT_GREY } from '../config';
+import { FONT, FONT_GREY, COLORS, COLOR_STR, SPACING, drawWoodFrame } from './UITheme';
 
-const CHUNK_PAD_X = 12;
-const CHUNK_PAD_Y = 12;
-const FONT_SIZE   = '26px';
-// CJK 字符实际渲染高度约 34px，加上上下各 14px 安全边距 = 62px
-// 不依赖 Phaser 测量，直接用固定高度
-const FIXED_CHUNK_H = 62;
+const FONT_SIZE   = '24px';
+const FIXED_CHUNK_H = 58;
+const CHUNK_PAD_X   = 10;
 
 export class DialogueBox extends Phaser.GameObjects.Container {
   private circledIds: string[] = [];
   private question!: Question;
-  private bgRect!: Phaser.GameObjects.Rectangle;
+  private frameGraphics!: Phaser.GameObjects.Graphics;
+  private boxW: number;
+  private boxH = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number, width: number) {
     super(scene, x, y);
-    this.bgRect = scene.add.rectangle(0, 0, width, 260, 0x1a120a)
-      .setOrigin(0, 0).setStrokeStyle(1, 0x3a2a18);
-    this.add(this.bgRect);
+    this.boxW = width;
+    this.frameGraphics = scene.add.graphics();
+    this.add(this.frameGraphics);
     scene.add.existing(this);
   }
 
   load(question: Question): void {
     this.question = question;
     this.circledIds = [];
+
+    // 清除旧 chunk（保留 frameGraphics）
     while (this.list.length > 1) {
       (this.list[1] as Phaser.GameObjects.GameObject).destroy();
     }
 
-    // Hard-question badge at top of box (not above it)
-    let startY = 20;
+    const bt = SPACING.borderThick;
+    const innerX = bt + SPACING.panelPad;
+    let startY = bt + SPACING.panelPad;
+
+    // 超难题 badge — 大而醒目
     if (question.isHard) {
-      const badge = this.scene.add.text(14, 14, '⚡ 超难题！', {
-        ...FONT, color: '#ffd060', fontSize: '20px',
-        backgroundColor: '#1a1200', padding: { x: 8, y: 4 },
-      });
+      // 背景色块
+      const badgeBg = this.scene.add.graphics();
+      badgeBg.fillStyle(0x7a1a00);
+      badgeBg.fillRoundedRect(innerX, startY, 240, 46, 6);
+      badgeBg.lineStyle(3, 0xff8c00);
+      badgeBg.strokeRoundedRect(innerX, startY, 240, 46, 6);
+      this.add(badgeBg);
+
+      const badge = this.scene.add.text(innerX + 120, startY + 23, '⚡ 超难题！', {
+        ...FONT, fontSize: '28px', color: '#ffe060', fontStyle: 'bold',
+      }).setOrigin(0.5, 0.5);
       this.add(badge);
-      startY = 66;
+
+      // 闪烁 tween
+      this.scene.tweens.add({
+        targets: badge,
+        alpha: { from: 1, to: 0.6 },
+        yoyo: true, repeat: -1, duration: 600, ease: 'Sine.easeInOut',
+      });
+
+      startY += 58;
     }
 
-    let cursorX = 14;
+    // "顾客说：" 标签
+    const speakerLabel = this.scene.add.text(innerX, startY, '💬 顾客说：', {
+      ...FONT_GREY, fontSize: '22px',
+    });
+    this.add(speakerLabel);
+    startY += 26;
+
+    // chunk 布局
+    let cursorX = innerX;
     let cursorY = startY;
-    const maxWidth = this.bgRect.width * 0.97;
+    const maxWidth = this.boxW - bt * 2 - SPACING.panelPad * 2;
 
     for (const chk of question.chunks) {
       const chunkContainer = this.buildChunk(chk);
-      const chunkWidth = (chunkContainer as unknown as { chunkWidth: number }).chunkWidth;
+      const chunkW = (chunkContainer as unknown as { chunkWidth: number }).chunkWidth;
 
-      if (cursorX + chunkWidth > maxWidth && cursorX > 14) {
-        cursorX = 14;
-        cursorY += FIXED_CHUNK_H + 8;
+      if (cursorX + chunkW > innerX + maxWidth && cursorX > innerX) {
+        cursorX = innerX;
+        cursorY += FIXED_CHUNK_H + 6;
       }
 
       chunkContainer.setPosition(cursorX, cursorY);
       this.add(chunkContainer);
-      cursorX += chunkWidth + 4;
+      cursorX += chunkW + 3;
     }
 
-    const newHeight = Math.max(100, cursorY + 70);
-    this.bgRect.setSize(this.bgRect.width, newHeight);
+    const totalH = Math.max(390, cursorY - bt - SPACING.panelPad + FIXED_CHUNK_H + bt + SPACING.panelPad + 8);
+    this.boxH = totalH;
+    this.redrawFrame();
+  }
+
+  private redrawFrame(): void {
+    this.frameGraphics.clear();
+    drawWoodFrame(this.frameGraphics, 0, 0, this.boxW, this.boxH);
   }
 
   private buildChunk(chk: TextChunk): Phaser.GameObjects.Container {
     const scene = this.scene;
-    const style = chk.clickable ? FONT : FONT_GREY;
-    const label = scene.add.text(CHUNK_PAD_X, CHUNK_PAD_Y, chk.text, {
-      ...style, fontSize: FONT_SIZE,
+    const isClickable = chk.clickable;
+    const label = scene.add.text(CHUNK_PAD_X, 0, chk.text, {
+      ...(isClickable ? FONT : FONT_GREY), fontSize: FONT_SIZE,
     });
+
     const w = label.width + CHUNK_PAD_X * 2;
     const h = FIXED_CHUNK_H;
-    // 文字垂直居中于固定高度框内
     label.setY((h - label.height) / 2);
 
-    const bg = scene.add.rectangle(0, 0, w, h,
-      chk.clickable ? 0x181818 : 0x101008)
-      .setOrigin(0, 0)
-      .setStrokeStyle(1, chk.clickable ? 0x333344 : 0x1a1a10);
+    const g = scene.add.graphics();
+    if (isClickable) {
+      // 未圈选：浅木色底 + 细边
+      g.fillStyle(COLORS.bgWarm);
+      g.fillRect(0, 0, w, h);
+      g.lineStyle(1, 0xd4b870);
+      g.strokeRect(0, 0, w, h);
+    } else {
+      // 非关键词：更浅的底
+      g.fillStyle(0xf5edd8);
+      g.fillRect(0, 0, w, h);
+    }
 
-    const container = scene.add.container(0, 0, [bg, label]);
+    const container = scene.add.container(0, 0, [g, label]);
     (container as unknown as { chunkWidth: number }).chunkWidth = w;
 
-    if (chk.clickable) {
-      bg.setInteractive({ useHandCursor: true })
-        .on('pointerup', () => this.onChunkTap(chk, bg, label));
+    if (isClickable) {
+      g.setInteractive(new Phaser.Geom.Rectangle(0, 0, w, h), Phaser.Geom.Rectangle.Contains);
+      g.on('pointerover', () => { this.scene.game.canvas.style.cursor = 'pointer'; });
+      g.on('pointerout',  () => { this.scene.game.canvas.style.cursor = 'default'; });
+      g.on('pointerup', () => this.onChunkTap(chk, g, label, container, w, h));
     }
     return container;
   }
 
   private onChunkTap(
     chk: TextChunk,
-    bg: Phaser.GameObjects.Rectangle,
+    g: Phaser.GameObjects.Graphics,
     label: Phaser.GameObjects.Text,
+    container: Phaser.GameObjects.Container,
+    w: number, h: number,
   ): void {
     if (this.circledIds.includes(chk.id)) return;
 
     if (KeywordValidator.isValidKeyword(this.question, chk.id)) {
       this.circledIds.push(chk.id);
-      bg.setFillStyle(0x2a1a00).setStrokeStyle(2, 0xc89020);
-      label.setStyle({ ...FONT_GOLD, fontSize: FONT_SIZE });
+
+      // 圈选样式：黄色底 + 立体边框
+      g.clear();
+      g.fillStyle(COLORS.keywordBg);
+      g.fillRect(0, 0, w, h);
+      // 高光（左上）
+      g.lineStyle(2, 0xf0d860);
+      g.lineBetween(0, 0, w, 0);
+      g.lineBetween(0, 0, 0, h);
+      // 阴影（右下）
+      g.lineStyle(2, 0xb89020);
+      g.lineBetween(0, h - 1, w, h - 1);
+      g.lineBetween(w - 1, 0, w - 1, h);
+
+      label.setStyle({ ...FONT, fontSize: FONT_SIZE, color: COLOR_STR.inkDark, fontStyle: 'bold' });
+
+      // 弹跳动画
+      this.scene.tweens.add({
+        targets: container,
+        scaleX: { from: 1, to: 1.12 },
+        scaleY: { from: 1, to: 1.12 },
+        yoyo: true, duration: 100, ease: 'Back.easeOut',
+      });
+
       this.scene.events.emit('keyword_circled', chk.id);
+
       if (KeywordValidator.allCircled(this.question, this.circledIds)) {
         this.scene.events.emit('all_keywords_done');
       }
     } else {
+      // 误点：左右抖动
       this.scene.tweens.add({
-        targets: bg,
-        x: { from: -3, to: 3 },
+        targets: g,
+        x: { from: -4, to: 4 },
         yoyo: true, repeat: 2, duration: 40,
-        onComplete: () => bg.setX(0),
+        onComplete: () => g.setX(0),
       });
     }
   }
 
-  // Kept for API compatibility but now handled inside load()
-  showHardBadge(): void { /* badge is now set in load() */ }
+  showHardBadge(): void { /* handled in load() */ }
 }
